@@ -31,13 +31,15 @@ class Status_Commands(commands.Cog):
         embed.add_field(name="Author", value="IKY#5948")
         embed.add_field(
             name="discord.py",
-            value=f"[{discord.__version__}-modified](https://github.com/null2264/discord.py)",
+            value=f"[{discord.__version__}-modified](https://github.com/xIKYx/InKY-Bot)",
         )
         embed.add_field(
             name="About",
             value="**InKY Bot** is an open source bot, "
             + "a fork of [mcbeDiscordBot](https://github.com/AnInternetTroll/mcbeDiscordBot) "
             + "(Steve the Bot) created by [AnInternetTroll](https://github.com/AnInternetTroll), "
+            + "and from [ZiRO-Bot](https://github.com/ZiRO-Bot/ziBot) (ziBot) created by "
+            + "[null2264](https://github.com/null2264) "
             + f"but rewritten a bit.\n\n**Bot Version**: {bot_ver}",
             inline=False,
         )
