@@ -39,7 +39,7 @@ class Status_Commands(commands.Cog):
             + "a fork of [mcbeDiscordBot](https://github.com/AnInternetTroll/mcbeDiscordBot) "
             + "(Steve the Bot) created by [AnInternetTroll](https://github.com/AnInternetTroll), "
             + "and from [ZiRO-Bot](https://github.com/ZiRO-Bot/ziBot) (ziBot) created by "
-            + "[null2264](https://github.com/null2264) "
+            + "[null2264](https://github.com/null2264), "
             + f"but rewritten a bit.\n\n**Bot Version**: {bot_ver}",
             inline=False,
         )
