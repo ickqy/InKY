@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from random import choice, randint, random
 
-class Fun_Commands(commands.Cog):
+class Fun(commands.Cog):
 
     def __innit__(self, client):
         self.client = client
@@ -76,5 +76,53 @@ class Fun_Commands(commands.Cog):
         """- Find your girlfriend"""
         await ctx.send(f"{choice(['In Walmart getting some snack to Neflix n Chill ', 'With another guy, get a new girlfied smhmyhead', 'You dont have LOL'])}")
 
+    @commands.command(
+        usage="(choice)",
+        brief="Rock Paper Scissors with the bot.",
+        example="{prefix}rps rock",
+    )
+    async def rps(self, ctx, choice: str):
+        """- Rock Paper Scissors with the bot."""
+        choice = choice.lower()
+        rps = ["rock", "paper", "scissors"]
+        bot_choice = rps[randint(0, len(rps) - 1)]
+
+        await ctx.send(
+            f"You chose ***{choice.capitalize()}***."
+            + f" I chose ***{bot_choice.capitalize()}***."
+        )
+        if bot_choice == choice:
+            await ctx.send("It's a Tie!")
+        elif bot_choice == rps[0]:
+
+            def f(x):
+                return {"paper": "Paper wins!", "scissors": "Rock wins!"}.get(
+                    x, "Rock wins!"
+                )
+
+            result = f(choice)
+        elif bot_choice == rps[1]:
+
+            def f(x):
+                return {"rock": "Paper wins!", "scissors": "Scissors wins!"}.get(
+                    x, "Paper wins!"
+                )
+
+            result = f(choice)
+        elif bot_choice == rps[2]:
+
+            def f(x):
+                return {"paper": "Scissors wins!", "rock": "Rock wins!"}.get(
+                    x, "Scissors wins!"
+                )
+
+            result = f(choice)
+        else:
+            return
+        if choice == "noob":
+            result = "Noob wins!"
+        await ctx.send(result)
+
+
 def setup(client):
-    client.add_cog(Fun_Commands(client))
+    client.add_cog(Fun(client))
