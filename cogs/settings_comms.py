@@ -2,7 +2,7 @@ import discord
 import random
 from discord.ext import commands
 
-class Status_Commands(commands.Cog):
+class Settings(commands.Cog):
 
     def __innit__(self, client):
         self.client = client
@@ -49,4 +49,4 @@ class Status_Commands(commands.Cog):
         await ctx.send(embed=embed)
 
 def setup(client):
-    client.add_cog(Status_Commands(client))
+    client.add_cog(Settings(client))
