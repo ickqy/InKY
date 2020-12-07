@@ -14,7 +14,7 @@ class Status_Commands(commands.Cog):
     
     # Commands
     @commands.command()
-    async def ping(self, ctx, client):
+    async def ping(self, ctx):
         """- Check if the bot is online"""
         await ctx.send('Pong!')
 
