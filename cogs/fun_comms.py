@@ -123,6 +123,5 @@ class Fun(commands.Cog):
             result = "Noob wins!"
         await ctx.send(result)
 
-
 def setup(client):
     client.add_cog(Fun(client))
