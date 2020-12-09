@@ -15,7 +15,7 @@ class Settings(commands.Cog):
     
     # Commands
     @commands.command()
-    async def ping(self, ctx, arg):
+    async def ping(self, ctx, arg=None):
         if arg == "pong":
             return await ctx.send("Congratulation, you just ponged yourself lol")
 
