@@ -1,5 +1,6 @@
 import discord
 import random
+import time
 from discord.ext import commands
 
 class Settings(commands.Cog):
@@ -15,8 +16,11 @@ class Settings(commands.Cog):
     # Commands
     @commands.command()
     async def ping(self, ctx):
-        """- Check if the bot is online"""
-        await ctx.send('Pong!')
+        start = time.perf_counter()
+        message = await ctx.send("Ping...")
+        end = time.perf_counter()
+        duration = (end - start) * 1000
+        await message.edit(content='Pong! {:.2f}ms'.format(duration))
 
     @commands.command(aliases=["bi", "about", "info",])
     async def botinfo(self, ctx):
