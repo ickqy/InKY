@@ -126,7 +126,6 @@ class Fun(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, ctx, message):
         bad_words = ["fair", "ⓕⓐⓘⓡ", "ɹıɐɟ", "justo", "adil"]
-        fair = ""
         for word in bad_words:
             if word in message.content.lower().replace(" ", ""):
                 fair += f"{word.title()} "
