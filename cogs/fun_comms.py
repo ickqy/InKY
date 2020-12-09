@@ -123,12 +123,43 @@ class Fun(commands.Cog):
             result = "Noob wins!"
         await ctx.send(result)
 
-    @commands.Cog.listener()
-    async def on_message(self, ctx, message):
-        bad_words = ["fair", "ⓕⓐⓘⓡ", "ɹıɐɟ", "justo", "adil"]
-        for word in bad_words:
-            if word in message.content.lower().replace(" ", ""):
-                fair += f"{word.title()} "
+    @commands.command()
+    async def findsleep(self, ctx):
+        """See how long you sleep."""
+
+        lessSleepMsg = [
+            "gn, insomniac!",
+            "counting sheep didn't work? try counting chloroform vials!",
+            "try a glass of water",
+            "some decaf coffee might do the trick!",
+        ]
+
+        moreSleepMsg = [
+            "waaakeee uuuppp!",
+            "are they dead or asleep? I can't tell.",
+            "wake up, muffin head",
+            "psst... coffeeee \\:D",
+        ]
+
+        sleepHrs = randint(0, 24)
+
+        if sleepHrs == 0:
+            await ctx.send(
+                f"{ctx.author.mention} -> your sleep is 0 hours long - nice try :D"
+            )
+        elif sleepHrs <= 5:
+            if sleepHrs == 1:
+                s = ""
+            else:
+                s = "s"
+            await ctx.send(
+                f"{ctx.author.mention} -> your sleep is {sleepHrs} hour{s} long - {lessSleepMsg[randint(0, len(lessSleepMsg) - 1)]}"
+            )
+        else:
+            await ctx.send(
+                f"{ctx.author.mention} -> your sleep is {sleepHrs} hours long - {moreSleepMsg[randint(0, len(moreSleepMsg) - 1)]}"
+            )
+
 
 def setup(client):
     client.add_cog(Fun(client))
