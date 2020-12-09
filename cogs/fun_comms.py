@@ -123,5 +123,13 @@ class Fun(commands.Cog):
             result = "Noob wins!"
         await ctx.send(result)
 
+    @commands.Cog.listener()
+    async def on_message(self, ctx, message):
+        bad_words = ["fair", "ⓕⓐⓘⓡ", "ɹıɐɟ", "justo", "adil"]
+        fair = ""
+        for word in bad_words:
+            if word in message.content.lower().replace(" ", ""):
+                fair += f"{word.title()} "
+
 def setup(client):
     client.add_cog(Fun(client))
