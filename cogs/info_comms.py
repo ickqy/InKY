@@ -2,6 +2,7 @@ import discord
 import random
 import time
 from discord.ext import commands
+from pytz import timezone
 
 class Information(commands.Cog):
 
@@ -57,46 +58,113 @@ class Information(commands.Cog):
         )
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def userinfo(self, ctx, user: discord.Member = None):
-        """Get information about a user"""
-        # await ctx.send(f"```py\n{dump(user)}```")
+    @commands.command(aliases=["ui"], usage="[member]")
+    async def userinfo(self, ctx, *, user: discord.Member = None):
+        """- Show user information."""
+        member = user or ctx.message.author
 
-        if not user:
-            user = ctx.message.author
+        def stat(x):
+            return {
+                "offline": "<:status_offline:747799247243575469>",
+                "idle": "<:status_idle:747799258316668948>",
+                "dnd": "<:status_dnd:747799292592259204>",
+                "online": "<:status_online:747799234828435587>",
+                "streaming": "<:status_streaming:747799228054765599>",
+            }.get(str(x), "None")
 
-        output = ""
-        for i in user.roles:
-            output += i.mention + " "
+        def badge(x):
+            return {
+                "UserFlags.hypesquad_balance": "<:balance:747802468586356736>",
+                "UserFlags.hypesquad_brilliance": "<:brilliance:747802490241810443>",
+                "UserFlags.hypesquad_bravery": "<:bravery:747802479533490238>",
+                "UserFlags.bug_hunter": "<:bughunter:747802510663745628>",
+                "UserFlags.booster": "<:booster:747802502677659668>",
+                "UserFlags.hypesquad": "<:hypesquad:747802519085776917>",
+                "UserFlags.partner": "<:partner:747802528594526218>",
+                "UserFlags.owner": "<:owner:747802537402564758>",
+                "UserFlags.staff": "<:stafftools:747802548391379064>",
+                "UserFlags.early_supporter": "<:earlysupport:747802555689730150>",
+                "UserFlags.verified": "<:verified:747802457798869084>",
+                "UserFlags.verified_bot": "<:verified:747802457798869084>",
+                "UserFlags.verified_bot_developer": "<:verified_bot_developer:748090768237002792>",
+            }.get(x, "🚫")
 
-        if user.color.value == 0:
-            color = 16777210
+        def activity(x):
+            return {
+                "playing": "Playing ",
+                "watching": "Watching ",
+                "listening": "Listening to ",
+                "streaming": "Streaming ",
+                "custom": "",
+            }.get(x, "None ")
+
+        badges = []
+        for x in list(member.public_flags.all()):
+            x = str(x)
+            if member == ctx.guild.owner:
+                badges.append(badge("UserFlags.owner"))
+            badges.append(badge(x))
+
+        roles = []
+        if member:
+            for role in member.roles:
+                if role.name != "@everyone":
+                    roles.append(role.mention)
+
+        jakarta = timezone("Asia/Jakarta")
+
+        if member:
+            status = member.status
+            statEmoji = stat(member.status)
         else:
-            color = user.color
-
-        if user.is_avatar_animated():
-            profilePic = user.avatar_url_as(format="gif")
-        else:
-            profilePic = user.avatar_url_as(format="png")
-
+            status = "Unknown"
+            statEmoji = "❓"
         embed = discord.Embed(
-            title=user.name,
-            description=user.mention,
-            color=color,
+            description=f"{statEmoji}({status})\n"
+            + (
+                "<:activity:748091280227041281>"
+                + activity(str(member.activity.type).replace("ActivityType.", ""))
+                + f"**{member.activity.name}**"
+                if member and member.activity
+                else ""
+            ),
+            colour=member.colour if member else discord.Colour(0x000000),
             timestamp=ctx.message.created_at,
         )
-        if user.premium_since:
-            embed.add_field(name="Boosting since", value=user.premium_since.date())
-        # embed.set_thumbnail(url="attachment://temp.webp")
-        embed.set_thumbnail(url=profilePic)
-        embed.add_field(name="Nickname", value=user.display_name, inline=False)
-        embed.add_field(name="Joined on", value=user.joined_at.date(), inline=True)
-        embed.add_field(name="Status", value=user.status, inline=True)
-        embed.add_field(
-            name="Created account on", value=user.created_at.date(), inline=True
+        embed.set_author(
+            name=f"{member}", icon_url=member.avatar_url
         )
-        embed.add_field(name="Roles", value=output, inline=True)
-        embed.set_footer(text=f"ID: {user.id}")
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.add_field(name="ID", value=member.id)
+        embed.add_field(name="Guild name", value=member.display_name)
+        embed.add_field(
+            name="Badges", value=" ".join(badges) if badges else "No badge."
+        )
+        embed.add_field(
+            name="Created on",
+            value=member.created_at.replace(tzinfo=timezone("UTC"))
+            .astimezone(jakarta)
+            .strftime("%a, %#d %B %Y, %H:%M WIB"),
+        )
+        embed.add_field(
+            name="Joined on",
+            value=member.joined_at.replace(tzinfo=timezone("UTC"))
+            .astimezone(jakarta)
+            .strftime("%a, %#d %B %Y, %H:%M WIB")
+            if member
+            else "Not a member.",
+        )
+        if len(", ".join(roles)) <= 1024:
+            embed.add_field(
+                name=f"Roles ({len(roles)})",
+                value=", ".join(roles) or "No roles.",
+                inline=False,
+            )
+        else:
+            embed.add_field(name=f"Roles", value=f"{len(roles)}", inline=False)
+        embed.set_footer(
+            text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
+        )
         await ctx.send(embed=embed)
 
 def setup(client):
