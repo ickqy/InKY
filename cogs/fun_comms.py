@@ -78,11 +78,10 @@ class Fun(commands.Cog):
 
     @commands.command(
         usage="(choice)",
-        brief="Rock Paper Scissors with the bot.",
+        brief="- Rock Paper Scissors with the bot.",
         example="{prefix}rps rock",
     )
     async def rps(self, ctx, choice: str):
-        """- Rock Paper Scissors with the bot."""
         choice = choice.lower()
         rps = ["rock", "paper", "scissors"]
         bot_choice = rps[randint(0, len(rps) - 1)]
