@@ -3,7 +3,7 @@ import random
 import time
 from discord.ext import commands
 
-class Settings(commands.Cog):
+class Information(commands.Cog):
 
     def __innit__(self, client):
         self.client = client
@@ -57,5 +57,47 @@ class Settings(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def userinfo(self, ctx, user: discord.Member = None):
+        """Get information about a user"""
+        # await ctx.send(f"```py\n{dump(user)}```")
+
+        if not user:
+            user = ctx.message.author
+
+        output = ""
+        for i in user.roles:
+            output += i.mention + " "
+
+        if user.color.value == 0:
+            color = 16777210
+        else:
+            color = user.color
+
+        if user.is_avatar_animated():
+            profilePic = user.avatar_url_as(format="gif")
+        else:
+            profilePic = user.avatar_url_as(format="png")
+
+        embed = discord.Embed(
+            title=user.name,
+            description=user.mention,
+            color=color,
+            timestamp=ctx.message.created_at,
+        )
+        if user.premium_since:
+            embed.add_field(name="Boosting since", value=user.premium_since.date())
+        # embed.set_thumbnail(url="attachment://temp.webp")
+        embed.set_thumbnail(url=profilePic)
+        embed.add_field(name="Nickname", value=user.display_name, inline=False)
+        embed.add_field(name="Joined on", value=user.joined_at.date(), inline=True)
+        embed.add_field(name="Status", value=user.status, inline=True)
+        embed.add_field(
+            name="Created account on", value=user.created_at.date(), inline=True
+        )
+        embed.add_field(name="Roles", value=output, inline=True)
+        embed.set_footer(text=f"ID: {user.id}")
+        await ctx.send(embed=embed)
+
 def setup(client):
-    client.add_cog(Settings(client))
+    client.add_cog(Information(client))
