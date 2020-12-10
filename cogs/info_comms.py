@@ -167,5 +167,58 @@ class Information(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["si"])
+    async def serverinfo(self, ctx):
+        """Show server information."""
+        embed = discord.Embed(
+            title=f"About {ctx.guild.name}",
+            colour=discord.Colour(0xFFFFF0),
+            timestamp=ctx.message.created_at,
+        )
+
+        roles = []
+        for role in ctx.guild.roles:
+            if role.name != "@everyone":
+                roles.append(role.mention)
+        width = 3
+
+        boosters = [x.mention for x in ctx.guild.premium_subscribers]
+
+        embed.add_field(name="Owner", value=f"{ctx.guild.owner.mention}", inline=False)
+        embed.add_field(name="Created on", value=f"{ctx.guild.created_at.date()}")
+        embed.add_field(name="Region", value=f"``{ctx.guild.region}``")
+        embed.set_thumbnail(url=ctx.guild.icon_url)
+        embed.add_field(
+            name="Verification Level", value=f"{ctx.guild.verification_level}".title()
+        )
+        embed.add_field(
+            name="Channels",
+            value="<:categories:747750884577902653>"
+            + f" {len(ctx.guild.categories)}\n"
+            + "<:text_channel:747744994101690408>"
+            + f" {len(ctx.guild.text_channels)}\n"
+            + "<:voice_channel:747745006697185333>"
+            + f" {len(ctx.guild.voice_channels)}",
+        )
+        embed.add_field(name="Members", value=f"{ctx.guild.member_count}")
+        if len(boosters) < 5:
+            embed.add_field(
+                name=f"Boosters ({len(boosters)})",
+                value=",\n".join(
+                    ", ".join(boosters[i : i + width])
+                    for i in range(0, len(boosters), width)
+                )
+                if boosters
+                else "No booster.",
+            )
+        else:
+            embed.add_field(name=f"Boosters ({len(boosters)})", value=len(boosters))
+        if len(", ".join(roles)) <= 1024:
+            embed.add_field(name=f"Roles ({len(roles)})", value=", ".join(roles))
+        else:
+            embed.add_field(name=f"Roles", value=f"{len(roles)}")
+        embed.set_footer(text=f"ID: {ctx.guild.id}")
+        await ctx.send(embed=embed)
+
 def setup(client):
     client.add_cog(Information(client))
