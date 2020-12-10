@@ -159,6 +159,22 @@ class Fun(commands.Cog):
                 f"{ctx.author.mention} -> your sleep is {sleepHrs} hours long - {moreSleepMsg[randint(0, len(moreSleepMsg) - 1)]}"
             )
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        bad_words = ["fair", "ⓕⓐⓘⓡ", "ɹıɐɟ", "justo", "adil"]
+        fair = ""
+        for word in bad_words:
+            if word in message.content.lower().replace(" ", ""):
+                fair += f"{word.title()} "
+        if fair:
+            try:
+                await message.channel.send(fair)
+            except UnboundLocalError:
+                pass
+
 
 def setup(client):
     client.add_cog(Fun(client))
