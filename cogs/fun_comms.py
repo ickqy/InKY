@@ -125,7 +125,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def findsleep(self, ctx):
-        """See how long you sleep."""
+        """- See how long you sleep."""
 
         lessSleepMsg = [
             "gn, insomniac!",
