@@ -181,7 +181,7 @@ class Fun(commands.Cog):
         if (
             reaction.emoji == "⭐"
             and not reaction.message.id in self.pins
-            and reaction.count >= 5
+            and reaction.count >= 3
         ):
             self.pins.append(reaction.message.id)
 
