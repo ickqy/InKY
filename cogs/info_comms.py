@@ -38,7 +38,7 @@ class Information(commands.Cog):
             timestamp=ctx.message.created_at,
         )
         embed.set_thumbnail(url='https://cdn.discordapp.com/avatars/783159643126890517/06e9f5496357fc24b6037dc92c159971.webp?size=1024')
-        embed.add_field(name="Author", value="IKY#5948")
+        embed.add_field(name="Author", value="IKY#2478")
         embed.add_field(
             name="discord.py",
             value=f"[{discord.__version__}-modified](https://github.com/xIKYx/InKY-Bot)",
