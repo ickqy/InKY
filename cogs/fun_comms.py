@@ -176,5 +176,10 @@ class Fun(commands.Cog):
             except UnboundLocalError:
                 pass
 
+    @commands.command()
+    async def e(self, ctx):
+        """- self explanitory"""
+        await ctx.send('e')
+
 def setup(client):
     client.add_cog(Fun(client))

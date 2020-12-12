@@ -19,7 +19,7 @@ class Information(commands.Cog):
     async def ping(self, ctx, arg=None):
         """- Check Bots Ping"""
         if arg == "pong":
-            return await ctx.send("Congratulation, you just ponged yourself lol")
+            return await ctx.send("Congratulations, you just ponged yourself lol")
 
         else:
             start = time.perf_counter()
