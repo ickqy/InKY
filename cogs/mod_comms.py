@@ -1,5 +1,5 @@
 import discord
-import random
+from random import choice, randint, random
 from discord.ext import commands
 
 class Moderation(commands.Cog):
@@ -27,7 +27,7 @@ class Moderation(commands.Cog):
     async def ban(self, ctx, member : discord.Member, *, reason=None):
         """- Ban a Member"""
         await member.send(f"You Have been Banned from {ctx.guild.name} for {reason}!")
-        await ctx.send(f'{member.mention} has been Banned from the server')
+        await ctx.send(f"{member.mention} {choice(['has been Banned from the server', 'has been brrred from the server', 'has beed boked from the server'])}!")
         await member.ban(reason=reason)
 
     @commands.command()
