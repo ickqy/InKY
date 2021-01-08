@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import json
 
-class Information(commands.Cog):
+class Starboard(commands.Cog):
 
     def __innit__(self, client):
         self.client = client
@@ -38,3 +38,6 @@ class Information(commands.Cog):
                 int(self.client.config[str(reaction.message.guild.id)]["pins_channel"])
             )
             await channel.send(embed=embed)
+
+def setup(client):
+    client.add_cog(Starboard(client))
