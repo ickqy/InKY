@@ -77,7 +77,7 @@ class Starboard(commands.Cog):
 			embed = discord.Embed(
 				title="**New Starred Message**",
 				description=reaction.message.content,
-				colour=self.client.main_colour,
+				colour=discord.Colour(0xDAA711),
 				url=reaction.message.jump_url,
 				timestamp=reaction.message.created_at,
 			)
