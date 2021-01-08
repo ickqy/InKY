@@ -12,12 +12,18 @@ class Starboard(commands.Cog):
             with open('starboard_config.json', 'w+') as f:
                 json.dump({}, f, indent=4)
 
+    async def is_mod(self, ctx):
+        try:
+            return ctx.author.guild_permissions.manage_channels
+        except AttributeError:
+            return False
+
     @commands.group()
     async def starboard(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('Invalid command passed')
 
-    @commands.has_permissions(ban_members = True)
+    @commands.check(is_mod)
     @starboard.command(description='Sets the channel for starboard')
     async def setup(self, ctx, channel: discord.TextChannel = None, amount: int = 5):
         if not channel:
@@ -86,6 +92,5 @@ class Starboard(commands.Cog):
             channel = self.client.get_channel(int(starboard_config[str(reaction.message.guild.id)]["channel"]))
             await channel.send(embed=embed)
 
-
 def setup(client):
-    client.add_cog(Starboard(client))
+	client.add_cog(Starboard(client))
