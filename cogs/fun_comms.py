@@ -98,7 +98,7 @@ class Fun(commands.Cog):
         e = discord.Embed(
             title="findseed but visual",
             description=f"Your seed looks like: \n\n{portalframe}",
-            color=discord.Colour(0x38665E),
+            color=discord.Colour(0xF4ABBA),
         )
         e.set_author(
             name=f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
