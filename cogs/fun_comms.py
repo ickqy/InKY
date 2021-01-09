@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from random import choice, randint, random
+import json
 
 class Fun(commands.Cog):
 
@@ -36,6 +37,44 @@ class Fun(commands.Cog):
             "{air}": "<:empty:754550188269633556>",
             "{frame}": "<:portal:754550231017979995>",
             "{eye}": "<:eye:754550267382333441>",
+        }
+
+        eyes = ["{eye}" if randint(1, 10) == 1 else "{frame}" for i in range(12)]
+        sel_eye = 0
+        portalframe = ""
+        for row in range(5):
+            for col in range(5):
+                if ((col == 0 or col == 4) and (row != 0 and row != 4)) or (
+                    (row == 0 or row == 4) and (col > 0 and col < 4)
+                ):
+                    sel_eye += 1
+                    portalframe += eyes[sel_eye - 1]
+                else:
+                    portalframe += "{air}"
+            portalframe += "\n"
+
+        # replace placeholder with portal frame emoji
+        for placeholder in emojis.keys():
+            portalframe = portalframe.replace(placeholder, emojis[placeholder])
+
+        e = discord.Embed(
+            title="findseed but visual",
+            description=f"Your seed looks like: \n\n{portalframe}",
+            color=discord.Colour(0x38665E),
+        )
+        e.set_author(
+            name=f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
+            icon_url=ctx.message.author.avatar_url,
+        )
+        await ctx.send(embed=e)
+
+    @commands.command(aliases=["vfsbp"])
+    async def findseedbutvisualbutpipega(self, ctx):
+        """- Test your luck in Minecraft but visual, and pipega."""
+        emojis = {
+            "{air}": "<:empty:754550188269633556>",
+            "{frame}": "<:piog:797563853902446592>",
+            "{eye}": "<:pepiga:797563870793039873>",
         }
 
         eyes = ["{eye}" if randint(1, 10) == 1 else "{frame}" for i in range(12)]
