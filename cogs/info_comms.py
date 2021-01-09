@@ -37,7 +37,7 @@ class Information(commands.Cog):
             colour=discord.Colour(0xFFFFF0),
             timestamp=ctx.message.created_at,
         )
-        embed.set_thumbnail(url='https://cdn.discordapp.com/avatars/783159643126890517/06e9f5496357fc24b6037dc92c159971.webp?size=1024')
+        embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/755958568041316383/797303173391974430/image0.jpg')
         embed.add_field(name="Author", value="IKY#2478")
         embed.add_field(
             name="discord.py",
