@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from random import choice, randint, random
+from utilities.barter import Piglin
 import json
 
 class Fun(commands.Cog):
@@ -219,6 +220,21 @@ class Fun(commands.Cog):
     async def e(self, ctx):
         """- self explanitory"""
         await ctx.send('e')
+
+    @commands.command(aliases=["piglin"])
+    async def barter(self, ctx):
+        """Barter with Minecraft's Piglin. (Based on JE 1.16.1, before nerf)"""
+        trade = Piglin()
+        e = discord.Embed(
+            title = "Bartering with Piglin...",
+            description = "You got {} {}!".format(trade.quantity, trade.item),
+            colour = discord.Colour.gold()
+        )
+        e.set_author(
+            name=f"{ctx.message.author}",
+            icon_url=ctx.message.author.avatar_url,
+        )
+        await ctx.send(embed=e)
 
 def setup(client):
     client.add_cog(Fun(client))
