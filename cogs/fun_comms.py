@@ -3,6 +3,7 @@ from discord.ext import commands
 from random import choice, randint, random
 from utilities.barter import Piglin
 import json
+import requests
 
 class Fun(commands.Cog):
 
@@ -235,6 +236,38 @@ class Fun(commands.Cog):
             icon_url=ctx.message.author.avatar_url,
         )
         await ctx.send(embed=e)
+
+    @commands.command()
+    async def joke(self, ctx, member):
+        data = requests.get('https://official-joke-api.appspot.com/jokes/random').json()
+        embed = discord.Embed(title = data['setup'], description = data['punchline'], color = 0xf4565a)
+        await ctx.send(embed=embed)
+
+    @commands.command(aliases = ['guess', 'gtn', 'guessnum'])
+    async def guessthenumber(self, ctx):
+        number = random.randint(1, 100)
+        guess = False
+        for i in range(1, 86):
+            if i == 11:
+                await ctx.send("The game is over and you lost.")
+                await ctx.send(f'Guess the number! Pick from 1 to 100 and get some hints! This is attempt #{i}.')
+                response = await self.client.wait_for('message', check = lambda message: message.author == ctx.author)
+            try:
+                guess = int(response.content)
+            except ValueError:
+                await ctx.send("That was not a number. Systems failing..... game aborted")
+                break
+            if guess > number:
+                await ctx.send('The number is smaller than that.')
+            elif guess < number:
+                await ctx.send('The number is bigger than that')
+            else:
+                await ctx.send(f'You got it! It took you {i} attempts.')
+                guess = True
+                break
+            if not guess:
+                await ctx.send(f"The number was {number}, too bad.")
+                return
 
 def setup(client):
     client.add_cog(Fun(client))
