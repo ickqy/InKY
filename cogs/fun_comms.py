@@ -14,12 +14,12 @@ class Fun(commands.Cog):
     # Commands
     @commands.command()
     async def isikyok(self, ctx):
-        """Check if IKY is ok in his brain"""
+        """`Check if IKY is ok in his brain`"""
         await ctx.send('No, he is bored and wanted to do a bot smhmyhead')
     
     @commands.command(aliases=["fs"])
     async def findseed(self, ctx):
-        """Test your Minecraft RNG, but in a bot command"""
+        """`Test your Minecraft RNG, but in a bot command`"""
         rigged_findseed = {
             564610598248120320: 90000
         }
@@ -34,7 +34,7 @@ class Fun(commands.Cog):
         
     @commands.command(aliases=["vfindseed", "visualfindseed", "vfs"])
     async def findseedbutvisual(self, ctx):
-        """Test your Minecraft RNG, but you can physaclly see it"""
+        """`Test your Minecraft RNG, but you can physaclly see it`"""
         emojis = {
             "{air}": "<:empty:754550188269633556>",
             "{frame}": "<:portal:754550231017979995>",
@@ -72,7 +72,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=["vfsbp"])
     async def findseedbutvisualbutpipega(self, ctx):
-        """Test your Minecraft RNG, but you can physaclly see it, and its pipega."""
+        """`Test your Minecraft RNG, but you can physaclly see it, and its pipega.`"""
         emojis = {
             "{air}": "<:empty:754550188269633556>",
             "{frame}": "<:piog:797563853902446592>",
@@ -110,7 +110,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=["vfsbpog"])
     async def findseedbutvisualbutpog(self, ctx):
-        """Test your Minecraft RNG, but you can physaclly see it,and its pog."""
+        """`Test your Minecraft RNG, but you can physaclly see it,and its pog.`"""
         emojis = {
             "{air}": "<:empty:754550188269633556>",
             "{frame}": "<:pog:798221486803779584>",
@@ -148,17 +148,17 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def flip(self, ctx):
-        """Flip a coin, thats it"""
+        """`Flip a coin, thats it`"""
         await ctx.send(f"You got {choice(['heads', 'tails'])}!")
 
     @commands.command(aliases=["findgf"])
     async def findgirlfriend(self, ctx):
-        """Find your gilfiried, yea ik its dumb"""
+        """`Find your gilfiried, yea ik its dumb`"""
         await ctx.send(f"{choice(['In Walmart getting some snack to Neflix n Chill ', 'With another guy, get a new girlfied smhmyhead', 'You dont have LOL'])}")
 
     @commands.command(
         usage="(choice)",
-        brief="The Classic Paper Rock Sccicors game, but with no friends, instead its with the bot",
+        brief="`The Classic Paper Rock Sccicors game, but with no friends, instead its with the bot`",
         example="{prefix}rps rock",
     )
     async def rps(self, ctx, choice: str):
@@ -204,7 +204,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def findsleep(self, ctx):
-        """See how long you sleep, this is 100% true I swear"""
+        """`See how long you sleep, this is 100% true I swear`"""
 
         lessSleepMsg = [
             "gn, insomniac!",
@@ -257,12 +257,12 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def e(self, ctx):
-        """If you say e, I say e, yes"""
+        """`If you say e, I say e, yes`"""
         await ctx.send('e')
 
     @commands.command(aliases=["piglin"])
     async def barter(self, ctx):
-        """Barter with Minecraft's Piglin. (Based on JE 1.16.1, before nerf)"""
+        """`Barter with Minecraft's Piglin. (Based on JE 1.16.1, before nerf)`"""
         trade = Piglin()
         e = discord.Embed(
             title = "Bartering with Piglin...",
@@ -277,14 +277,14 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def joke(self, ctx):
-        """Ask the bot a joke and he will tell you a joke that will defenetly make you laugh no cap"""
+        """`Ask the bot a joke and he will tell you a joke that will defenetly make you laugh no cap`"""
         data = requests.get('https://official-joke-api.appspot.com/jokes/random').json()
         embed = discord.Embed(title = data['setup'], description = data['punchline'], color = 0xf4565a)
         await ctx.send(embed=embed)
 
     @commands.command(aliases = ['guess', 'gtn', 'guessnum'])
     async def guessthenumber(self, ctx):
-        """Guess the number, why did you even do help guess if its self explanitory"""
+        """`Guess the number, why did you even do help guess if its self explanitory`"""
         number = randint(1, 100)
         guess = False
         for i in range(1, 86):

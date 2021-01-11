@@ -7,7 +7,7 @@ from random import randint
 
 class MyHelpCommand(commands.MinimalHelpCommand):
     messages = [
-        "As I say-!",
+        "As I say-",
         "Pogchampo",
         "F for PogChamp",
         "If you see this, you are a boomer",
@@ -41,7 +41,7 @@ class General(commands.Cog):
     # Commands
     @commands.command()
     async def ping(self, ctx, arg=None):
-        """Checks Bots Ping"""
+        """`Checks Bots Ping`"""
         if arg == "pong":
             return await ctx.send("Congratulations, you just ponged yourself lol")
 
@@ -54,7 +54,7 @@ class General(commands.Cog):
 
     @commands.command(aliases=["bi", "about", "info",])
     async def botinfo(self, ctx):
-        """Show the bot's information."""
+        """`Show the bot's information.`"""
         bot_ver = "2.1.A"
         embed = discord.Embed(
             title="About InKY Bot",
@@ -84,7 +84,7 @@ class General(commands.Cog):
 
     @commands.command(aliases=["ui"], usage="[member]")
     async def userinfo(self, ctx, *, user: discord.Member = None):
-        """Shows user information."""
+        """`Shows user information.`"""
         member = user or ctx.message.author
 
         def stat(x):
@@ -193,7 +193,7 @@ class General(commands.Cog):
 
     @commands.command(aliases=["si"])
     async def serverinfo(self, ctx):
-        """Show server information."""
+        """`Show server information.`"""
         embed = discord.Embed(
             title=f"About {ctx.guild.name}",
             colour=discord.Colour(0xFFFFF0),

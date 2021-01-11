@@ -28,7 +28,7 @@ class Starboard(commands.Cog):
 	@commands.check(is_mod)
 	@starboard.command()
 	async def setup(self, ctx, channel: discord.TextChannel = None, amount: int = 5):
-		"""Sets the channel for starboard (Only People with [Administator = True] can use this command)"""
+		"""`Sets the channel for starboard (Only People with [Administator = True] can use this command)`"""
 		if not channel:
 			with open('starboard_config.json', 'r') as f:
 				starboard_config = json.load(f)
