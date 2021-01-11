@@ -1,16 +1,16 @@
 import discord
 from discord.ext import commands
 from random import choice, randint, random
-from utilities.barter import Piglin
+from .utilities.barter import Piglin
 import json
 import requests
 
 class Fun(commands.Cog):
 
-    def __innit__(self, client):
+    def __init__(self, client):
         self.client = client
         self.pins = []
-
+    
     # Commands
     @commands.command()
     async def isikyok(self, ctx):
@@ -238,20 +238,21 @@ class Fun(commands.Cog):
         await ctx.send(embed=e)
 
     @commands.command()
-    async def joke(self, ctx, member):
+    async def joke(self, ctx):
         data = requests.get('https://official-joke-api.appspot.com/jokes/random').json()
         embed = discord.Embed(title = data['setup'], description = data['punchline'], color = 0xf4565a)
         await ctx.send(embed=embed)
 
     @commands.command(aliases = ['guess', 'gtn', 'guessnum'])
     async def guessthenumber(self, ctx):
-        number = random.randint(1, 100)
+        number = randint(1, 100)
         guess = False
         for i in range(1, 86):
             if i == 11:
                 await ctx.send("The game is over and you lost.")
-                await ctx.send(f'Guess the number! Pick from 1 to 100 and get some hints! This is attempt #{i}.')
-                response = await self.client.wait_for('message', check = lambda message: message.author == ctx.author)
+                return
+            await ctx.send(f'Guess the number! Pick from 1 to 100 and get some hints! This is attempt #{i}.')
+            response = await self.client.wait_for('message', check = lambda message: message.author == ctx.author)
             try:
                 guess = int(response.content)
             except ValueError:
@@ -265,9 +266,8 @@ class Fun(commands.Cog):
                 await ctx.send(f'You got it! It took you {i} attempts.')
                 guess = True
                 break
-            if not guess:
-                await ctx.send(f"The number was {number}, too bad.")
-                return
+        if not guess:
+            await ctx.send(f"The number was {number}, too bad.")
 
 def setup(client):
     client.add_cog(Fun(client))
