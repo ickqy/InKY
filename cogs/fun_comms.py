@@ -108,6 +108,44 @@ class Fun(commands.Cog):
         )
         await ctx.send(embed=e)
 
+    @commands.command(aliases=["vfsbpog"])
+    async def findseedbutvisualbutpog(self, ctx):
+        """- Test your luck in Minecraft but visual, and pog."""
+        emojis = {
+            "{air}": "<:empty:754550188269633556>",
+            "{frame}": "<:pog:798221486803779584>",
+            "{eye}": "<:pogchamp:798221125200904212>",
+        }
+
+        eyes = ["{eye}" if randint(1, 10) == 1 else "{frame}" for i in range(12)]
+        sel_eye = 0
+        portalframe = ""
+        for row in range(5):
+            for col in range(5):
+                if ((col == 0 or col == 4) and (row != 0 and row != 4)) or (
+                    (row == 0 or row == 4) and (col > 0 and col < 4)
+                ):
+                    sel_eye += 1
+                    portalframe += eyes[sel_eye - 1]
+                else:
+                    portalframe += "{air}"
+            portalframe += "\n"
+
+        # replace placeholder with portal frame emoji
+        for placeholder in emojis.keys():
+            portalframe = portalframe.replace(placeholder, emojis[placeholder])
+
+        e = discord.Embed(
+            title="findseed but visual",
+            description=f"Your seed looks like: \n\n{portalframe}",
+            color=discord.Colour(0xD78369),
+        )
+        e.set_author(
+            name=f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
+            icon_url=ctx.message.author.avatar_url,
+        )
+        await ctx.send(embed=e)
+
     @commands.command()
     async def flip(self, ctx):
         """- Flip a coin."""
