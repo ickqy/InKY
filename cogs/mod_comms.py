@@ -4,7 +4,7 @@ from discord.ext import commands
 
 class Moderation(commands.Cog):
 
-    def __innit__(self, client):
+    def __init__(self, client):
         self.client = client
 
     @commands.command(aliases=["cc"])

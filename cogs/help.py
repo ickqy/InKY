@@ -3,12 +3,36 @@ import random
 import time
 from discord.ext import commands
 from pytz import timezone
+from random import randint
 
-class Information(commands.Cog):
+class MyHelpCommand(commands.MinimalHelpCommand):
+    messages = [
+        "As I say-!",
+        "Pogchampo",
+        "F for PogChamp",
+        "If you see this, you are a boomer",
+        "Please leave me alone :]",
+        "Chicken Nuggets, thats it",
+        "imagine doing a bot cause you were bored, pathetic",
+    ]
 
-    def __innit__(self, client):
+    def get_command_signature(self, command):
+        return f"``{self.clean_prefix}{command.qualified_name} {command.signature}``"
+
+    def get_ending_note(self) -> str:
+        return self.messages[randint(0, len(self.messages) - 1)]
+
+
+class General(commands.Cog):
+    def __init__(self, client):
         self.client = client
-    
+        self._original_help_command = client.help_command
+        client.help_command = MyHelpCommand()
+        client.help_command.cog = self
+
+    def cog_unload(self):
+        self.client.help_command = self._original_help_command
+
     # Events
     @commands.Cog.listener()
     async def on_ready(self):
@@ -31,14 +55,14 @@ class Information(commands.Cog):
     @commands.command(aliases=["bi", "about", "info",])
     async def botinfo(self, ctx):
         """- Show bot information."""
-        bot_ver = "1.0.0"
+        bot_ver = "2.1.A"
         embed = discord.Embed(
             title="About InKY Bot",
             colour=discord.Colour(0xFFFFF0),
             timestamp=ctx.message.created_at,
         )
         embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/755958568041316383/797303173391974430/image0.jpg')
-        embed.add_field(name="Author", value="IKY#2478")
+        embed.add_field(name="Author", value="IKY#2264")
         embed.add_field(
             name="discord.py",
             value=f"[{discord.__version__}-modified](https://github.com/xIKYx/InKY-Bot)",
@@ -221,4 +245,4 @@ class Information(commands.Cog):
         await ctx.send(embed=embed)
 
 def setup(client):
-    client.add_cog(Information(client))
+    client.add_cog(General(client))
