@@ -309,5 +309,15 @@ class Fun(commands.Cog):
         if not guess:
             await ctx.send(f"The number was {number}, too bad.")
 
+    @commands.command(aliases=['random'])
+    async def rng(self, ctx, minimum: int, maximum: int):
+        """`Choose a minimum and a maximum number and the bot will choose a random number`"""
+        await ctx.send(randint(minimum, maximum))
+
+    @commands.command()
+    async def roll(self, ctx, pool):
+        """`Roll the dice`"""
+        await ctx.send(f"You rolled a {randint(0, int(pool))}")
+
 def setup(client):
     client.add_cog(Fun(client))
