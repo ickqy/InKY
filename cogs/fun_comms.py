@@ -114,7 +114,7 @@ class Fun(commands.Cog):
         emojis = {
             "{air}": "<:empty:754550188269633556>",
             "{frame}": "<:pog:798221486803779584>",
-            "{eye}": "<:pogchamp:798221125200904212>",
+            "{eye}": "<:pogmouth:798224025272844288>",
         }
 
         eyes = ["{eye}" if randint(1, 10) == 1 else "{frame}" for i in range(12)]
