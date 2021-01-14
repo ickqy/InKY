@@ -249,7 +249,7 @@ class Fun(commands.Cog):
             "<@!730042011931115560>" in message.content
             or "<@730042011931115560>" in message.content
         ):
-            await message.channel.send("<:angryloikingping:798242294816964658>")
+            await message.channel.send("<a:angryloikingping:798242294816964658>")
         
         if message.author.bot:
             return
