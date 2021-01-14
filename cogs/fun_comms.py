@@ -241,6 +241,16 @@ class Fun(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if not message.guild:
+            return
+        if message.author.bot:
+            return
+        if (
+            "<@!730042011931115560>" in message.content
+            or "<@730042011931115560>" in message.content
+        ):
+            await message.channel.send("<:angryloikingping:798242294816964658>")
+        
         if message.author.bot:
             return
 
