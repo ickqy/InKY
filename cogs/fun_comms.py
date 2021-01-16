@@ -329,5 +329,95 @@ class Fun(commands.Cog):
         """`Roll the dice`"""
         await ctx.send(f"You rolled a {randint(0, int(pool))}")
 
+    @commands.command(aliases=["8ball"])
+    async def ballofwisdom(self, ctx, *, question):
+        """Ask the Magic 8Ball your question,a nd he will answer correctly no cap"""
+        responses = ["It is certain.",
+        "It is decidedly so.",
+        "Without a doubt.",
+        "Yes - definitely.",
+        "You may rely on it.",
+        "As I see it, yes.",
+        "Most likely.",
+        "Outlook good.",
+        "Yes.",
+        "Signs point to yes.",
+        "Reply hazy, try again.",
+        "Ask again later.",
+        "Better not tell you now.",
+        "Cannot predict now.",
+        "Concentrate and ask again.",
+        "Don't count on it.",
+        "My reply is no.",
+        "My sources say no.",
+        "Outlook not so good.",
+        "Very doubtful."]
+        
+        e = discord.Embed(
+        title=f"🎱  {question}?",
+        colour=discord.Colour(0x603593),
+        description=choice(responses),
+        )
+        
+        await ctx.send(embed=e)
+
+    @commands.command(aliases=["isimposter"], usage="[impostor count] [player count]")
+    async def isimpostor(self, ctx, impostor: int = 1, player: int = 10):
+        """Check if you're an impostor or a crewmate."""
+        if 3 < impostor < 1:
+            await ctx.send("Impostor counter can only be up to 3 impostors")
+            return
+        chance = 100 * impostor / player / 100
+        if random() < chance:
+            await ctx.send(f"{ctx.author.mention}, you're a crewmate!")
+        else:
+            await ctx.send(f"{ctx.author.mention}, you're an impostor!")
+
+    @commands.command()
+    async def roast (self, ctx, member : discord.Member):
+        roast = ["You're as useless as the 'ueue' in 'queue'",
+        "If I had a face like yours, I'd sue my parents",
+        "Some day you'll go far... and I hope you stay there",
+        "You must have been born on a highway cos' that's where most accidents happen",
+        "If i had a dollar for every time you said something smart, I'd be broke",
+        "When you were born the doctor threw you out the window and the window threw you back",
+        "If your brain was dynamite, there wouldn’t be enough to blow your hat off",
+        "Your face makes onions cry",
+        "I thought of you today, it reminded me to take out the trash",
+        "When karma comes back to punch you in the face, I want to be there in case it needs help",
+        "I thought I had the flu, but then I realized your face makes me sick to my stomach",
+        "You're like Mondays, everyone hates you",
+        "Keep rolling your eyes, you might find a barain baxck there",
+        "My phone battery lasts longer than your relationships, and my battery only lasts less than an hour FYI",
+        "I never forget a face, but in your case I would love to make an exception...",
+        "You're so ugly when you look in the mirror your reflection looks away",
+        "You're so ugly when you were born, the doctor said aww what a treasure and your mom said yeah lets bury it",
+        "Maybe you should eat make-up so you’ll be pretty on the inside too",
+        "When you were born, the doctor came out to the waiting room and said to your dad, I'm very sorry. We did everything we could. But he pulled through",
+        "It’s a shame you can’t Photoshop your personality",
+        "Whoever told you to be yourself gave you really bad advice",
+        "If you could use 100 percent of your brain's power, you'd still be incredibly stupid. 100 percent of nothing is still nothing",
+        "Go ahead, tell us everything you know. It'll only take ten seconds",
+        "It’s not Halloweeen - take your mask off",
+        "You have a face like a smoke alarm. Beat at it until it sounds off",
+        "I never saw anybody take so long to type, and with such little result",
+        "My hair straightener is hotter than you",
+        "I’d explain it to you but I left my English-to-Dumbass Dictionary at home",
+        "I don't exactly hate you, but if you were on fire and I had water, I'd drink it",
+        "I'd love to insult you, but I'm afraid I cannot perform as well as nature did",
+        "Everyone brings happiness to a room. I do when I enter, you do when you leave",
+        "The zoo called. They're wondering how you got out of your cage",
+        "I suggest you do a little soul searching. You might just find one",
+        "I’m visualizing duck tape over your mouth",
+        "You should use a glue stick instead of chapstick",
+        ]
+
+        e = discord.Embed(
+            colour=discord.Color(0xE41919),
+            description=f'{member.mention} {choice(roast)}',
+        )
+
+        await ctx.send(embed=e)
+
 def setup(client):
     client.add_cog(Fun(client))
