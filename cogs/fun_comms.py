@@ -412,12 +412,26 @@ class Fun(commands.Cog):
         "You should use a glue stick instead of chapstick",
         ]
 
-        e = discord.Embed(
-            colour=discord.Color(0xE41919),
-            description=f'{member.mention} {choice(roast)}',
-        )
+        no_roast = {
+            564610598248120320,
+            783159643126890517,
+        }
 
-        await ctx.send(embed=e)
+        if member.id in no_roast:
+            a = discord.Embed(
+                colour=discord.Color(0xE41919),
+                description="You thought you were smart, hahaha nice try",
+            )
+
+            await ctx.send(embed=a)
+        
+        else:
+            e = discord.Embed(
+                colour=discord.Color(0xE41919),
+                description=f'{member.mention} {choice(roast)}',
+            )
+
+            await ctx.send(embed=e)
 
 def setup(client):
     client.add_cog(Fun(client))
