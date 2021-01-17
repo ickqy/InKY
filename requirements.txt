@@ -1,3 +1,4 @@
 discord.py == 1.5.1
 aiohttp == 3.6.2
 requests
+numexpr
