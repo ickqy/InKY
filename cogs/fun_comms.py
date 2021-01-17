@@ -420,7 +420,7 @@ class Fun(commands.Cog):
         if member.id in no_roast:
             a = discord.Embed(
                 colour=discord.Color(0xE41919),
-                description="You thought you were smart, hahaha nice try",
+                description="Nope, not doing that",
             )
 
             await ctx.send(embed=a)
