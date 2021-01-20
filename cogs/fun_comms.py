@@ -410,6 +410,13 @@ class Fun(commands.Cog):
         "I suggest you do a little soul searching. You might just find one",
         "I’m visualizing duck tape over your mouth",
         "You should use a glue stick instead of chapstick",
+        "I love what you have done to your hair/ How'd you get it to come so far of your nostrils?",
+        "I would roast you, but my mom said not to burn trash",
+        "I'm not saying I hate you, but I would unplug your life support to charge my phone",
+        "If tour family were Starwars figures, you'd be the special edition",
+        "Over watching paint dry and listening to you, I choose watching paint dry",
+        "If you uploaded a video to Youtube with your face, it would get demonetized for `Harmful or dangerous content`",
+        "Life is great, you should get one",
         ]
 
         no_roast = {

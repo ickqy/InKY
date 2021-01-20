@@ -1,6 +1,8 @@
 import discord
 import random
 import time
+import re
+import datetime
 from discord.ext import commands
 from pytz import timezone
 from random import randint
@@ -244,5 +246,36 @@ class General(commands.Cog):
         embed.set_footer(text=f"ID: {ctx.guild.id}")
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["ei"])
+    async def emojiinfo(self, ctx ,* ,emojiname:str):
+        '''Displays Emoji Information'''
+        emojiname=emojiname.replace(" ","_")
+        match=re.findall(r"\b(?<!<)\w+\b",emojiname,re.I)
+        emojiname=match[0].lower()
+        for emoji_type in self.client.emojis:
+            emoji_name=emoji_type.name.lower()
+            if emoji_name == emojiname:
+                emoji=emoji_type
+                break
+        embed = discord.Embed(title="Emoji information",colour=0xff00ff,timestamp=datetime.datetime.utcnow())
+        embed.set_thumbnail(url=emoji.url)
+        fields = [("Name", emoji.name, True),
+        ("Emoji Preview",(emoji), True),
+        ("ID",emoji.id, True),
+        ("Created by", (f"{emoji.user}"), True),
+        ("Created at", emoji.created_at.strftime("%d/%m/%Y %H:%M:%S"), True),
+        ("Emoji Url", emoji.url, True),
+        ("Emoji Guild Name", emoji.guild, True),
+        ("Emoji Guild ID", emoji.guild_id, True),
+        ("Bot String", f"`{emoji}`", True),
+        ("Is Animated?", emoji.animated, True),
+        ("Is Restricted?", len(emoji.roles), True),
+        ("Can Bot use It?", emoji.is_usable(), True),
+        ("Is Available?", emoji.available, True),
+        ("Is Managed by Twitch?",emoji.managed, True)]
+        for name, value, inline in fields:
+            embed.add_field(name=name, value=value, inline=inline)
+            await ctx.send(embed=embed)
+        
 def setup(client):
     client.add_cog(General(client))
