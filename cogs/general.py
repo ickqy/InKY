@@ -281,7 +281,7 @@ class General(commands.Cog):
     async def suggestion(self, ctx, *, suggestion):
         """`Give suggestions to add to the bot!`"""
         
-        bot_owner = self.client.get_user("564610598248120320")
+        bot_owner = self.client.get_user(564610598248120320)
 
         if suggestion == None:
             ctx.send("Please type a suggjestion to suggest smhmyhead")
