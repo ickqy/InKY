@@ -275,8 +275,7 @@ class General(commands.Cog):
         ("Is Managed by Twitch?",emoji.managed, True)]
         for name, value, inline in fields:
             embed.add_field(name=name, value=value, inline=inline)
-            await ctx.send(embed=embed)
-            break
+        await ctx.send(embed=embed)
         
 def setup(client):
     client.add_cog(General(client))
