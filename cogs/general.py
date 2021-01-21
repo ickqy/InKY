@@ -276,6 +276,19 @@ class General(commands.Cog):
         for name, value, inline in fields:
             embed.add_field(name=name, value=value, inline=inline)
         await ctx.send(embed=embed)
+
+    @commands.command(aliases=["sug"])
+    async def suggestion(self, ctx, *, suggestion):
+        """`Give suggestions to add to the bot!`"""
         
+        bot_owner = self.client.get_user("564610598248120320")
+
+        if suggestion == None:
+            ctx.send("Please type a suggjestion to suggest smhmyhead")
+
+        else:
+            bot_owner.send(f'{ctx.author} has suggested {suggestion}')
+            ctx.send("Thank for your suggestion. The owner will review your suggestion")
+
 def setup(client):
     client.add_cog(General(client))
