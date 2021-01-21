@@ -284,11 +284,11 @@ class General(commands.Cog):
         bot_owner = self.client.get_user(564610598248120320)
 
         if suggestion == None:
-            ctx.send("Please type a suggjestion to suggest smhmyhead")
+            await ctx.send("Please type a suggjestion to suggest smhmyhead")
 
         else:
-            bot_owner.send(f'{ctx.author} has suggested {suggestion}')
-            ctx.send("Thank for your suggestion. The owner will review your suggestion")
+            await bot_owner.send(f'{ctx.author} has suggested {suggestion}')
+            await ctx.send("Thank for your suggestion. The owner will review your suggestion")
 
 def setup(client):
     client.add_cog(General(client))
