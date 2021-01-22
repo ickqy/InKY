@@ -275,7 +275,7 @@ class Fun(commands.Cog):
                 bruh += f"{word.title()} "
         if bruh:
             try:
-                await message.channel.send(fair)
+                await message.channel.send(bruh)
             except UnboundLocalError:
                 pass
 
