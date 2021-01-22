@@ -265,6 +265,20 @@ class Fun(commands.Cog):
             except UnboundLocalError:
                 pass
 
+        if message.author.bot:
+            return
+
+        worst_words = ["bruh", "bruj"]
+        bruh = ""
+        for word in worst_words:
+            if word in message.content.lower().replace(" ", ""):
+                bruh += f"{word.title()} "
+        if bruh:
+            try:
+                await message.channel.send(fair)
+            except UnboundLocalError:
+                pass
+
     @commands.command()
     async def e(self, ctx):
         """`If you say e, I say e, yes`"""
