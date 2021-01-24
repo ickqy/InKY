@@ -449,8 +449,8 @@ class Fun(commands.Cog):
             783159643126890517,
         }
 
-        if member is 'someone':
-            await ctx.send(choice(ctx.guild.members).mention)
+        if member is None:
+            member = choice(ctx.guild.members)
 
         if member.id in no_roast:
             a = discord.Embed(
