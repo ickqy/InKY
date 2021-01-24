@@ -374,7 +374,7 @@ class Fun(commands.Cog):
             await ctx.send(f"{ctx.author.mention}, you're an impostor!")
 
     @commands.command()
-    async def roast (self, ctx, member : discord.Member):
+    async def roast (self, ctx, member: discord.Member = None):
         roast = ["You're as useless as the 'ueue' in 'queue'",
         "If I had a face like yours, I'd sue my parents",
         "Some day you'll go far... and I hope you stay there",
