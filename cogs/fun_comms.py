@@ -265,20 +265,6 @@ class Fun(commands.Cog):
             except UnboundLocalError:
                 pass
 
-        if message.author.bot:
-            return
-
-        worst_words = ["bruh", "bruj"]
-        bruh = ""
-        for word in worst_words:
-            if word in message.content.lower().replace(" ", ""):
-                bruh += f"{word.title()} "
-        if bruh:
-            try:
-                await message.channel.send(bruh)
-            except UnboundLocalError:
-                pass
-
     @commands.command()
     async def e(self, ctx):
         """`If you say e, I say e, yes`"""
@@ -463,6 +449,9 @@ class Fun(commands.Cog):
             783159643126890517,
         }
 
+        if member is None:
+            await ctx.send(choice(ctx.guild.members).mention)
+
         if member.id in no_roast:
             a = discord.Embed(
                 colour=discord.Color(0xE41919),
@@ -478,6 +467,12 @@ class Fun(commands.Cog):
             )
 
             await ctx.send(embed=e)
+
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @commands.command()
+    async def someone(self, ctx):
+        """Discord's mistake"""
+        await ctx.send(choice(ctx.guild.members).mention)
 
 def setup(client):
     client.add_cog(Fun(client))
