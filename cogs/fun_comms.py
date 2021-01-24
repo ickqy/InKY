@@ -449,7 +449,7 @@ class Fun(commands.Cog):
             783159643126890517,
         }
 
-        if member is None:
+        if member is 'someone':
             await ctx.send(choice(ctx.guild.members).mention)
 
         if member.id in no_roast:
