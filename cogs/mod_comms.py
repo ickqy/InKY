@@ -26,9 +26,20 @@ class Moderation(commands.Cog):
     @commands.has_permissions(ban_members = True)
     async def ban(self, ctx, member : discord.Member, *, reason=None):
         """`Ban a Member (Only People with [ban_members = True] can use this command)`"""
-        await member.send(f"You Have been Banned from {ctx.guild.name} for {reason}!")
-        await ctx.send(f"{member.mention} {choice(['has been Banned from the server', 'has been brrred from the server', 'has beed boked from the server'])}!")
-        await member.ban(reason=reason)
+        
+        nah_fam = {
+            564610598248120320,
+            783159643126890517,
+        }
+
+        if member.id in nah_fam:
+            await ctx.send('Shut up boomer')
+            return
+
+        else:
+            await member.send(f"You Have been Banned from {ctx.guild.name} for {reason}!")
+            await ctx.send(f"{member.mention} {choice(['has been Banned from the server', 'has been brrred from the server', 'has beed bonked from the server'])}!")
+            await member.ban(reason=reason)
 
     @commands.command()
     @commands.has_permissions(ban_members = True)
