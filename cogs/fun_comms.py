@@ -248,6 +248,8 @@ class Fun(commands.Cog):
         if (
             "<@!730042011931115560>" in message.content
             or "<@730042011931115560>" in message.content
+            or "<@!730042011931115560>" in message.refrence
+            or "<@730042011931115560>" in message.refrence
         ):
             await message.channel.send("<a:angryloikingping:798242294816964658>")
         
