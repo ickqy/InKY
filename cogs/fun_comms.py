@@ -1,9 +1,10 @@
 import discord
+import asyncio
+import json
+import requests
 from discord.ext import commands
 from random import choice, randint, random
 from .utilities.barter import Piglin
-import json
-import requests
 
 class Fun(commands.Cog):
 
@@ -510,6 +511,12 @@ class Fun(commands.Cog):
             await ctx.send(
                 f"{ctx.author.mention} -> you owe ${taxmona} in taxes - {moreTaxesMsg[randint(0, len(moreTaxesMsg) - 1)]}"
             )
+
+    @commands.command()
+    async def canihaveahug(self, ctx):
+        message = await ctx.send("https://cdn.discordapp.com/attachments/745481731582197780/803337680086761522/giphy.gif")
+        await asyncio.sleep(2.5)
+        await message.edit(content="https://cdn.discordapp.com/attachments/745481731582197780/803338739882524742/next.png")
 
 def setup(client):
     client.add_cog(Fun(client))
