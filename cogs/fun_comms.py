@@ -474,5 +474,42 @@ class Fun(commands.Cog):
         """Discord's mistake"""
         await ctx.send(choice(ctx.guild.members).mention)
 
+    @commands.command()
+    async def findtaxes(self, ctx):
+        """`See how much you owe in taxes`"""
+
+        lessTaxesMsg = [
+            "You really do pay your taxes",
+            "How do you do this",
+            "Do you do manual maths?",
+            "Im amazed",
+        ]
+
+        moreTaxesMsg = [
+            "How many years have you gone without paying taxes",
+            "How come the IRS has not taken your house",
+            "How the hell do you owe so much",
+            "The IRS is having a lot of patience on ya",
+        ]
+
+        taxmona = randint(0, 1000000)
+
+        if taxmona == 0:
+            await ctx.send(
+                f"{ctx.author.mention} -> You owe nothing, are you 65 years old?"
+            )
+        elif taxmona <= 5000:
+            if taxmona == 1:
+                s = ""
+            else:
+                s = "s"
+            await ctx.send(
+                f"{ctx.author.mention} -> you owe ${taxmona} dollar{s} - {lessTaxesMsg[randint(0, len(lessTaxesMsg) - 1)]}"
+            )
+        else:
+            await ctx.send(
+                f"{ctx.author.mention} -> you owe ${taxmona} in taxes - {moreTaxesMsg[randint(0, len(moreTaxesMsg) - 1)]}"
+            )
+
 def setup(client):
     client.add_cog(Fun(client))
