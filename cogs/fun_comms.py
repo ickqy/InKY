@@ -518,5 +518,48 @@ class Fun(commands.Cog):
         await asyncio.sleep(2.5)
         await message.edit(content="https://cdn.discordapp.com/attachments/745481731582197780/803338739882524742/next.png")
 
+    @commands.command(aliases = ['memes'])
+    async def meme(self, ctx):
+        memejson = requests.get('https://meme-api.herokuapp.com/gimme/memes').json()
+        await ctx.send(memejson['url'])
+
+    @commands.command()
+    async def blackboxgame(self, ctx, arg=None):
+        """`A little game I created`"""
+        
+        b = ["<:greenTick:767209095090274325>",
+        "<:error:783265883228340245>",
+        ]
+        
+        if arg == "htp":
+            htp = discord.Embed(
+            colour=discord.Color(0xE41919),
+            title="**How to Play The Black Box**",
+            description="In this game, you are going to press the black boxes, you are going to try and get as many <:greenTick:767209095090274325> as you can.\n"
+            + "If you get a <:error:783265883228340245>, you lose.\n"
+            + "GL! If you want to play do `!bb` to start playing\n"
+            + "\n"
+            + "**Leaderboards**\n"
+            + "_Coming Soon_",
+            )
+            await ctx.send(embed=htp)
+
+        else:
+            play = discord.Embed(
+                colour=discord.Color(0xE41919),
+                title="**The Black Box Game**",
+                description=f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
+                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
+                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
+                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
+                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
+                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
+                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
+                + "\n"
+                + "Do `!bb htp` to know how to play the game",
+            )
+
+            await ctx.send(embed=play)
+
 def setup(client):
     client.add_cog(Fun(client))
