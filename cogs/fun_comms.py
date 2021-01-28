@@ -523,7 +523,7 @@ class Fun(commands.Cog):
         memejson = requests.get('https://meme-api.herokuapp.com/gimme/memes').json()
         await ctx.send(memejson['url'])
 
-    @commands.command()
+    @commands.command(aliases = ['bb'])
     async def blackboxgame(self, ctx, arg=None):
         """`A little game I created`"""
         
