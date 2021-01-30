@@ -67,7 +67,7 @@ class General(commands.Cog):
         embed.add_field(name="Author", value="IKY#2264")
         embed.add_field(
             name="discord.py",
-            value=f"[{discord.__version__}-modified](https://github.com/xIKYx/InKY-Bot)",
+            value=f"[{discord.__version__}](https://github.com/xIKYx/InKY-Bot)",
         )
         embed.add_field(
             name="About",

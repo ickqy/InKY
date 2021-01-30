@@ -527,9 +527,10 @@ class Fun(commands.Cog):
     async def blackboxgame(self, ctx, arg=None):
         """`A little game I created`"""
         
-        b = ["<:greenTick:767209095090274325>",
-        "<:error:783265883228340245>",
-        ]
+        emojis = {
+            "{bad}": "<:error:783265883228340245>",
+            "{good}": "<:greenTick:767209095090274325>"
+        }
         
         if arg == "htp":
             htp = discord.Embed(
@@ -545,21 +546,30 @@ class Fun(commands.Cog):
             await ctx.send(embed=htp)
 
         else:
-            play = discord.Embed(
-                colour=discord.Color(0xE41919),
-                title="**The Black Box Game**",
-                description=f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
-                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
-                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
-                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
-                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
-                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
-                + f"||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||||{(choice(b))}||\n"
-                + "\n"
-                + "Do `!bb htp` to know how to play the game",
-            )
+            # range(25) for 7x7
+            goodBad = ["||{bad}||" if randint(1, 10) == 1 else "||{good}||" for i in range(49)]
 
-            await ctx.send(embed=play)
+            output = ""
+            stuff = 0
+            for row in range(7):
+                for col in range(7):
+                    output += goodBad[stuff]
+                    stuff += 1
+                output += "\n"
+
+            for e in emojis.keys():
+                output = output.replace(e, emojis[e])
+
+            e = discord.Embed(
+            title="The Black Box Game!",
+            description=f"{output}",
+            color=discord.Colour(0xE41919),
+            )
+            e.set_footer(
+                text="Do !bb htp to learn how to play the game!"
+            )
+            
+            await ctx.send(embed=e)
 
 def setup(client):
     client.add_cog(Fun(client))
