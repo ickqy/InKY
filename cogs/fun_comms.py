@@ -538,7 +538,7 @@ class Fun(commands.Cog):
             title="**How to Play The Black Box**",
             description="In this game, you are going to press the black boxes, you are going to try and get as many <:greenTick:767209095090274325> as you can.\n"
             + "If you get a <:error:783265883228340245>, you lose.\n"
-            + "Every box has a 15% chance of being an <:error:783265883228340245>"
+            + "Every box has a 15% chance of being an <:error:783265883228340245>\n"
             + "GL! If you want to play do `!bb` to start playing\n"
             + "\n"
             + "**Leaderboards**\n"
