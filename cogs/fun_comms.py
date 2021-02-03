@@ -13,11 +13,6 @@ class Fun(commands.Cog):
         self.pins = []
     
     # Commands
-    @commands.command()
-    async def isikyok(self, ctx):
-        """`Check if IKY is ok in his brain`"""
-        await ctx.send('No, he is bored and wanted to do a bot smhmyhead')
-    
     @commands.command(aliases=["fs"])
     async def findseed(self, ctx):
         """`Test your Minecraft RNG, but in a bot command`"""
@@ -152,11 +147,6 @@ class Fun(commands.Cog):
         """`Flip a coin, thats it`"""
         await ctx.send(f"You got {choice(['heads', 'tails'])}!")
 
-    @commands.command(aliases=["findgf"])
-    async def findgirlfriend(self, ctx):
-        """`Find your gilfiried, yea ik its dumb`"""
-        await ctx.send(f"{choice(['In Walmart getting some snack to Neflix n Chill ', 'With another guy, get a new girlfied smhmyhead', 'You dont have LOL'])}")
-
     @commands.command(
         usage="(choice)",
         brief="`The Classic Paper Rock Sccicors game, but with no friends, instead its with the bot`",
@@ -251,20 +241,6 @@ class Fun(commands.Cog):
             or "<@730042011931115560>" in message.content
         ):
             await message.channel.send("<a:angryloikingping:798242294816964658>")
-        
-        if message.author.bot:
-            return
-
-        bad_words = ["fair", "ⓕⓐⓘⓡ", "ɹıɐɟ", "justo", "adil"]
-        fair = ""
-        for word in bad_words:
-            if word in message.content.lower().replace(" ", ""):
-                fair += f"{word.title()} "
-        if fair:
-            try:
-                await message.channel.send(fair)
-            except UnboundLocalError:
-                pass
 
     @commands.command()
     async def e(self, ctx):
