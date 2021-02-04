@@ -557,7 +557,7 @@ class Fun(commands.Cog):
         lb = discord.Embed(
         colour=discord.Color(0xE41919),
         title="**Black Box Game Leaderboards**",
-        description="<:1st:806646658016215053> 1st - N/A\n"
+        description="<:1st:806646658016215053> 1st - <@564610598248120320> - 24 <:greenTick:767209095090274325> - [video](https://cdn.discordapp.com/attachments/802671302271696906/806997370382057492/2021-02-04_15-14-35_Trim.mp4)\n"
         + "<:2nd:806646671735128096> 2nd - N/A\n"
         + "<:3rd:806646682292191242> 3rd - N/A\n"
         + "4rd - N/A\n"
