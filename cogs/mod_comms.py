@@ -103,11 +103,15 @@ class Moderation(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, msg):
 
-        filtered_words = {"-poll", "-polls"}
+        filtered_words = {"-poll"}
 
-        for word in filtered_words:
-            if word in msg.content:
-                await msg.delete()
+        if msg.author == self.client.user:
+            return
+        
+        else:
+            for word in filtered_words:
+                if word in msg.content:
+                    await msg.delete()
 
 def setup(client):
     client.add_cog(Moderation(client))

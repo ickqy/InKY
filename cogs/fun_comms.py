@@ -499,7 +499,7 @@ class Fun(commands.Cog):
         memejson = requests.get('https://meme-api.herokuapp.com/gimme/memes').json()
         await ctx.send(memejson['url'])
 
-    @commands.command(aliases = ['bb'])
+    @commands.group(aliases = ['bb'], example=["group"], invoke_without_command=True)
     async def blackboxgame(self, ctx, arg=None):
         """`A little game I created`"""
         
@@ -507,46 +507,107 @@ class Fun(commands.Cog):
             "{bad}": "<:error:783265883228340245>",
             "{good}": "<:greenTick:767209095090274325>"
         }
+
+        # range(25) for 7x7
+        goodBad = ["||{bad}||" if randint(1, 7) == 1 else "||{good}||" for i in range(49)]
+
+        output = ""
+        stuff = 0
+        for row in range(7):
+            for col in range(7):
+                output += goodBad[stuff]
+                stuff += 1
+            output += "\n"
+
+        for e in emojis.keys():
+            output = output.replace(e, emojis[e])
+
+        e = discord.Embed(
+        title="The Black Box Game!",
+        description=f"{output}",
+        color=discord.Colour(0xE41919),
+        )
+        e.set_footer(
+            text=f"Do -bb htp to learn how to play the game!"
+        )
+            
+        await ctx.send(embed=e)
         
-        if arg == "htp":
-            htp = discord.Embed(
-            colour=discord.Color(0xE41919),
-            title="**How to Play The Black Box**",
-            description="In this game, you are going to press the black boxes, you are going to try and get as many <:greenTick:767209095090274325> as you can.\n"
-            + "If you get a <:error:783265883228340245>, you lose.\n"
-            + "Every box has a 15% chance of being an <:error:783265883228340245>\n"
-            + "GL! If you want to play do `!bb` to start playing\n"
-            + "\n"
-            + "**Leaderboards**\n"
-            + "_Coming Soon_",
-            )
-            await ctx.send(embed=htp)
+    @blackboxgame.command(name="htp")
+    async def bbhtp(self, ctx):
+        htp = discord.Embed(
+        colour=discord.Color(0xE41919),
+        title="**How to Play The Black Box**",
+        description="In this game, you are going to press the black boxes, you are going to try and get as many <:greenTick:767209095090274325> as you can.\n"
+        + "If you get a <:error:783265883228340245>, you lose.\n"
+        + "Every box has a 15% chance of being an <:error:783265883228340245>\n"
+        + f"GL! If you want to play do `-bb` to start playing\n"
+        + "\n"
+        + "**Leaderboards**\n"
+        + "To submit a run for this game you need to do the following-\n"
+        + "1. You need to submit a video (NOT A PHOTO) so it can be verified\n"
+        + "2. You had to do the command\n"
+        + "3. The recording has to have you full screen (or only the text channel) and needs to have when you did the command\n"
+        + f"To submit, do `-bb submit <Time> <Video>`\n",
+        )
+        await ctx.send(embed=htp)
+
+    @blackboxgame.command(name="lb")
+    async def bblb(self, ctx):
+        lb = discord.Embed(
+        colour=discord.Color(0xE41919),
+        title="**Black Box Game Leaderboards**",
+        description="<:1st:806646658016215053> 1st - N/A\n"
+        + "<:2nd:806646671735128096> 2nd - N/A\n"
+        + "<:3rd:806646682292191242> 3rd - N/A\n"
+        + "4rd - N/A\n"
+        )
+        lb.set_footer(
+            text=f"do -bb htp to see leaderboard rules"
+        )
+        await ctx.send(embed=lb)
+
+    @blackboxgame.command(name="submit")
+    async def submit(self, ctx, checks=None, video=None):
+
+        bot_owner = self.client.get_user(564610598248120320)
+
+        if checks == None:
+            await ctx.send("Please give me the amout of <:greenTick:767209095090274325> you got in the game")
+
+        elif video == None:
+            await ctx.send("Please give me a video link (either YT or a file, do `-bb htsf` to learn how to submit a file)")
 
         else:
-            # range(25) for 7x7
-            goodBad = ["||{bad}||" if randint(1, 7) == 1 else "||{good}||" for i in range(49)]
+            await bot_owner.send(f'{ctx.author} has submitted a run for The Black Box Game and got {checks} <:greenTick:767209095090274325> and this is the video {video}')
+            await ctx.send("You run has been submitted to the Owner, it will get reviewed and if verified added to the leaderboards")
 
-            output = ""
-            stuff = 0
-            for row in range(7):
-                for col in range(7):
-                    output += goodBad[stuff]
-                    stuff += 1
-                output += "\n"
-
-            for e in emojis.keys():
-                output = output.replace(e, emojis[e])
-
-            e = discord.Embed(
-            title="The Black Box Game!",
-            description=f"{output}",
-            color=discord.Colour(0xE41919),
-            )
-            e.set_footer(
-                text="Do !bb htp to learn how to play the game!"
-            )
-            
-            await ctx.send(embed=e)
+    @blackboxgame.command(name="htsf")
+    async def htsf(self, ctx):
+        a = discord.Embed(
+        colour=discord.Color(0xE41919),
+        title="**How to submit a File**",
+        description="First, upload your file to Discord (it has to be a mp4 file, if its not, this will not work)",
+        )
+        b = discord.Embed(
+            colour=discord.Colour(0xE41919),
+            description="Now that you uploaded it to Discord, right click the video and click `Copy Link`",
+        )
+        c = discord.Embed(
+            colour=discord.Colour(0xE41919),
+            description="After that do `-bb [Number of checks you got] [The link you just copied]`",
+        )
+        d = discord.Embed(
+            colour=discord.Colour(0xE41919),
+            description="If you need further assistance, ping or DM <@564610598248120320> for help",
+        )
+        await ctx.send(embed=a)
+        await ctx.send("https://cdn.discordapp.com/attachments/806957891939598388/806961381920342078/one.png\n")
+        await ctx.send(embed=b)
+        await ctx.send("https://cdn.discordapp.com/attachments/806957891939598388/806961400646729749/two.png")
+        await ctx.send(embed=c)
+        await ctx.send("https://cdn.discordapp.com/attachments/806957891939598388/806961414672613386/three.png")
+        await ctx.send(embed=d)
 
 def setup(client):
     client.add_cog(Fun(client))
