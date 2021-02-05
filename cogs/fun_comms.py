@@ -247,20 +247,70 @@ class Fun(commands.Cog):
         """`If you say e, I say e, yes`"""
         await ctx.send('e')
 
-    @commands.command(aliases=["piglin"])
-    async def barter(self, ctx):
-        """`Barter with Minecraft's Piglin. (Based on JE 1.16.1, before nerf)`"""
-        trade = Piglin()
+    @commands.cooldown(1, 25, type=commands.BucketType.user)
+    @commands.command(aliases=["piglin"], usage="[amount of gold]", example="{prefix}barter 64")
+    async def barter(self, ctx, gold: int = 64):
+        """Barter with Minecraft's Piglin. (Based on JE 1.16.1, before nerf)"""
+        # limit gold amount up to 2240 (Minecraft inventory limit)
+        if gold > 2240:
+            gold = 2240
+        if gold <= 0:
+            gold = 1
+
+        trade = Piglin(gold)
+
+        items = {}
+        for item in trade.items:
+            try:
+                items[item.name][1] += item.quantity
+            except KeyError:
+                items[item.name] = [item.id, item.quantity]
+
+        def emoji(name: str):
+            return {
+                "enchanted-book": "<:enchanted_book:807319425848967258>",
+                "iron-boots": "<:enchanted_iron_boots:807319425711210528>",
+                "iron-nugget": "<:iron_nuggets:807318404364107776>",
+                "splash-potion-fire-res": "<:splashpotionoffireres:807318404024762409>",
+                "potion-fire-res": "<:potionoffireres:807318404355719188>",
+                "quartz": "<:quartz:807318404285333514>",
+                "glowstone-dust": "<:glowstonedust:807318404431085587>",
+                "magma-cream": "<:magma_cream:807318404393599046>",
+                "ender-pearl": "<:enderpearls:807318454751068180>",
+                "string": "<:string:807318404091740216>",
+                "fire-charge": "<:fire_charge:807318403894607913>",
+                "gravel": "<:garvel:807318404347330610>",
+                "leather": "<:leather:807318404385341520>",
+                "nether-brick": "<:nether_bricks:807318404020043797>",
+                "obsidian": "<:obsidian:807318404318363658>",
+                "cry-obsidian": "<:crying_obsidian:807318454423650305>",
+                "soul-sand": "<:soul_sand:807318404297785364>",
+            }.get(name, "❔")
+
         e = discord.Embed(
-            title = "Bartering with Piglin...",
-            description = "You got {} {}!".format(trade.quantity, trade.item),
-            colour = discord.Colour.gold()
+            title="Bartering with {} gold{}  <a:loading:776255339716673566>".format(gold, "s" if gold > 1 else ""),
+            colour=discord.Colour.gold()
         )
         e.set_author(
             name=f"{ctx.message.author}",
             icon_url=ctx.message.author.avatar_url,
         )
-        await ctx.send(embed=e)
+        a = discord.Embed(
+            title="Bartering with {} gold{}".format(gold, "s" if gold > 1 else ""),
+            description="You got:\n\n{}".format(
+                "\n".join(["{} → {}".format(
+                    emoji(v[0]), v[1]) for v in items.values()]
+                )
+            ),
+            colour=discord.Colour.gold(),
+        )
+        a.set_author(
+            name=f"{ctx.message.author}",
+            icon_url=ctx.message.author.avatar_url,
+        )
+        message = await ctx.send(embed=e)
+        await asyncio.sleep(5)
+        await message.edit(embed=a)
 
     @commands.command()
     async def joke(self, ctx):
