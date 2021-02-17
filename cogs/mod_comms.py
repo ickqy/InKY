@@ -58,7 +58,7 @@ class Moderation(commands.Cog):
                 return
 
         @commands.command()
-    async def emojilist(self, ctx):
+        async def emojilist(self, ctx):
         """List all emoji in the server."""
         emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
         emoji_list = textwrap.wrap(emojis, 1024)
