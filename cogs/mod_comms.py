@@ -57,67 +57,67 @@ class Moderation(commands.Cog):
                 await member.send(f"You Have been Unbanned from {ctx.guild.name}!")
                 return
 
-        @commands.command()
-        async def emojilist(self, ctx):
-        """List all emoji in the server."""
-        emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
-        emoji_list = textwrap.wrap(emojis, 1024)
+    @commands.command()
+    async def emojilist(self, ctx):
+    """List all emoji in the server."""
+    emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
+    emoji_list = textwrap.wrap(emojis, 1024)
 
-        page = 1
-        total_page = len(emoji_list)
-        embed_reactions = ["◀️", "▶️", "⏹️"]
+    page = 1
+    total_page = len(emoji_list)
+    embed_reactions = ["◀️", "▶️", "⏹️"]
 
-        def check_reactions(reaction, user):
-            if user == ctx.author and str(reaction.emoji) in embed_reactions:
-                return str(reaction.emoji)
-            else:
-                return False
+    def check_reactions(reaction, user):
+        if user == ctx.author and str(reaction.emoji) in embed_reactions:
+            return str(reaction.emoji)
+        else:
+            return False
 
-        def create_embed(ctx, page):
-            e = discord.Embed(
-                title="Emojis",
-                description=emoji_list[page - 1],
-                color=discord.Colour(0xFFFFF0),
-                timestamp=ctx.message.created_at,
+    def create_embed(ctx, page):
+        e = discord.Embed(
+            title="Emojis",
+            description=emoji_list[page - 1],
+            color=discord.Colour(0xFFFFF0),
+            timestamp=ctx.message.created_at,
+        )
+        e.set_author(
+            name=f"{ctx.guild.name} - {page}/{total_page}",
+            icon_url=ctx.guild.icon_url,
+        )
+        e.set_footer(
+            text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
+        )
+        return e
+
+    embed = create_embed(ctx, page)
+    msg = await ctx.send(embed=embed)
+    for emoji in embed_reactions:
+        await msg.add_reaction(emoji)
+    while True:
+        try:
+            reaction, user = await self.client.wait_for(
+                "reaction_add", check=check_reactions, timeout=60.0
             )
-            e.set_author(
-                name=f"{ctx.guild.name} - {page}/{total_page}",
-                icon_url=ctx.guild.icon_url,
-            )
-            e.set_footer(
-                text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
-            )
-            return e
-
-        embed = create_embed(ctx, page)
-        msg = await ctx.send(embed=embed)
-        for emoji in embed_reactions:
-            await msg.add_reaction(emoji)
-        while True:
+        except asyncio.TimeoutError:
+            break
+        else:
+            emoji = check_reactions(reaction, user)
             try:
-                reaction, user = await self.client.wait_for(
-                    "reaction_add", check=check_reactions, timeout=60.0
-                )
-            except asyncio.TimeoutError:
+                await msg.remove_reaction(reaction.emoji, user)
+            except discord.Forbidden:
+                pass
+            if emoji == "◀️" and page != 1:
+                page -= 1
+                embed = create_embed(ctx, page)
+                await msg.edit(embed=embed)
+            if emoji == "▶️" and page != total_page:
+                page += 1
+                embed = create_embed(ctx, page)
+                await msg.edit(embed=embed)
+            if emoji == "⏹️":
+                # await msg.clear_reactions()
                 break
-            else:
-                emoji = check_reactions(reaction, user)
-                try:
-                    await msg.remove_reaction(reaction.emoji, user)
-                except discord.Forbidden:
-                    pass
-                if emoji == "◀️" and page != 1:
-                    page -= 1
-                    embed = create_embed(ctx, page)
-                    await msg.edit(embed=embed)
-                if emoji == "▶️" and page != total_page:
-                    page += 1
-                    embed = create_embed(ctx, page)
-                    await msg.edit(embed=embed)
-                if emoji == "⏹️":
-                    # await msg.clear_reactions()
-                    break
-        return
+    return
 
     @commands.command()
     @commands.has_permissions(manage_messages = True)
