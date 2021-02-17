@@ -24,7 +24,7 @@ class Fun(commands.Cog):
             total_eyes = rigged_findseed[ctx.author.id]
         else:
             total_eyes = sum([1 for i in range(12) if randint(1, 10) == 1])
-        await ctx.send(
+        await ctx.reply(
             f"{(ctx.message.author.mention)} -> your seed is a {total_eyes} eye"
         )
         
@@ -64,7 +64,7 @@ class Fun(commands.Cog):
             name=f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
             icon_url=ctx.message.author.avatar_url,
         )
-        await ctx.send(embed=e)
+        await ctx.reply(embed=e)
 
     @commands.command(aliases=["vfsbp"])
     async def findseedbutvisualbutpipega(self, ctx):
@@ -102,7 +102,7 @@ class Fun(commands.Cog):
             name=f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
             icon_url=ctx.message.author.avatar_url,
         )
-        await ctx.send(embed=e)
+        await ctx.reply(embed=e)
 
     @commands.command(aliases=["vfsbpog"])
     async def findseedbutvisualbutpog(self, ctx):
@@ -559,7 +559,7 @@ class Fun(commands.Cog):
         }
 
         # range(25) for 7x7
-        goodBad = ["||{bad}||" if randint(1, 7) == 1 else "||{good}||" for i in range(49)]
+        goodBad = ["||{bad}||" if randint(1, 5) == 1 else "||{good}||" for i in range(49)]
 
         output = ""
         stuff = 0
@@ -581,7 +581,7 @@ class Fun(commands.Cog):
             text=f"Do -bb htp to learn how to play the game!"
         )
             
-        await ctx.send(embed=e)
+        await ctx.reply(embed=e)
         
     @blackboxgame.command(name="htp")
     async def bbhtp(self, ctx):
@@ -607,7 +607,7 @@ class Fun(commands.Cog):
         lb = discord.Embed(
         colour=discord.Color(0xE41919),
         title="**Black Box Game Leaderboards**",
-        description="<:1st:806646658016215053> 1st - <@564610598248120320> - 24 <:greenTick:767209095090274325> - [video](https://cdn.discordapp.com/attachments/802671302271696906/806997370382057492/2021-02-04_15-14-35_Trim.mp4)\n"
+        description="<:1st:806646658016215053> 1st - N/A\n"
         + "<:2nd:806646671735128096> 2nd - N/A\n"
         + "<:3rd:806646682292191242> 3rd - N/A\n"
         + "4rd - N/A\n"
@@ -630,7 +630,7 @@ class Fun(commands.Cog):
 
         else:
             await bot_owner.send(f'{ctx.author} has submitted a run for The Black Box Game and got {checks} <:greenTick:767209095090274325> and this is the video {video}')
-            await ctx.send("You run has been submitted to the Owner, it will get reviewed and if verified added to the leaderboards")
+            await ctx.reply("You run has been submitted to the Owner, it will get reviewed and if verified added to the leaderboards")
 
     @blackboxgame.command(name="htsf")
     async def htsf(self, ctx):
@@ -658,6 +658,36 @@ class Fun(commands.Cog):
         await ctx.send(embed=c)
         await ctx.send("https://cdn.discordapp.com/attachments/806957891939598388/806961414672613386/three.png")
         await ctx.send(embed=d)
+
+    @commands.command()
+    async def findseeds(self, ctx, attempts: int=100):
+        if attempts > 100000:
+            attempts = 100000
+        if attempts <= 0:
+            await ctx.reply("Give the amout of seeds you want to findseeds")
+            return
+        if attempts == 1:
+            await ctx.reply("You know that `-findseed` exists, right?")
+            return
+
+        eyes = {}
+        for i in range(attempts):
+            curEye = sum([1 for i in range(12) if randint(1, 10) == 1])
+            try:
+                eyes[curEye] += 1
+            except KeyError:
+                eyes[curEye] = 1
+
+        e = discord.Embed(
+            title=f"This is what you got in {attempts} seeds",
+            description="\n".join(["**{}** eyes: `{}` seeds".format(k, v) for k, v in sorted(eyes.items())]),
+            color=discord.Colour(0x349988),
+        )
+        e.set_author(
+            name=f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
+            icon_url=ctx.message.author.avatar_url,
+        )
+        await ctx.reply(embed=e)
 
 def setup(client):
     client.add_cog(Fun(client))
