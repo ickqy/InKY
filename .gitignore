@@ -1,2 +1,4 @@
 __pycache__/
 config.py
+starboard_config.json
+fair.json
