@@ -240,7 +240,7 @@ class Fun(commands.Cog):
             "<@!730042011931115560>" in message.content
             or "<@730042011931115560>" in message.content
         ):
-            await message.channel.send("<a:angryloikingping:798242294816964658>")
+            await message.channel.send("<a:angyping:799099392854196234>")
 
     @commands.command()
     async def e(self, ctx):
