@@ -242,6 +242,20 @@ class Fun(commands.Cog):
         ):
             await message.channel.send("<a:angyping:799099392854196234>")
 
+        if message.author.bot:
+            return
+
+        bad_words = ["fair", "ⓕⓐⓘⓡ", "ɹıɐɟ", "justo", "adil"]
+        fair = ""
+        for word in bad_words:
+            if word in message.content.lower().replace(" ", ""):
+                fair += f"{word.title()} "
+        if fair:
+            try:
+                await message.channel.send(fair)
+            except UnboundLocalError:
+                pass
+
     @commands.command()
     async def e(self, ctx):
         """`If you say e, I say e, yes`"""
