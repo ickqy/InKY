@@ -64,7 +64,7 @@ class General(commands.Cog):
             timestamp=ctx.message.created_at,
         )
         embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/755958568041316383/797303173391974430/image0.jpg')
-        embed.add_field(name="Author", value="IKY#2264")
+        embed.add_field(name="Author", value="icky#2264")
         embed.add_field(
             name="discord.py",
             value=f"[{discord.__version__}](https://github.com/xIKYx/InKY-Bot)",
