@@ -12,7 +12,7 @@ class Moderation(commands.Cog):
     @commands.command(aliases=["cc"])
     @commands.has_permissions(manage_messages = True)
     async def purge(self, ctx, amount=1):
-        """`Deletes messages in bulck (Only People with [manage_messages = True] can use this command)`"""
+        """`Deletes messages in bulk (Only People with [manage_messages = True] can use this command)`"""
         await ctx.channel.purge(limit=amount)
         await ctx.send("Messages Deleted", delete_after=5)
 
@@ -61,7 +61,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     async def emojilist(self, ctx):
-        """List all emoji in the server."""
+        """List all emojis in the server."""
         emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
         emoji_list = textwrap.wrap(emojis, 1024)
 
