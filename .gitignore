@@ -1,7 +1,3 @@
 __pycache__/
 config.py
 starboard_config.json
-fair.json
-pyproject.toml
-poetry.lock
-keep_alive.py
