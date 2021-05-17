@@ -46,7 +46,7 @@ class Stars(commands.Cog):
         self.starred = {}
 
         # Getting starred message from starboard_config.json
-        # [TODO] Make it not spaghetti code?
+        # [TODO] Fix up the code?
         try:
             with open("starboard_config.json", "r") as conf:
                 conf = json.load(conf)
@@ -98,7 +98,7 @@ class Stars(commands.Cog):
     @starboard.command()
     @commands.check(is_mod)
     async def setup(self, ctx, channel: Union[discord.TextChannel, str] = None, amount: int = 5):
-        """`Sets the channel for starboard (Only People with [Administator = True] can use this command)`"""
+        """`Sets the channel for starboard to be used in (Only People with [Administator = True] can use this command)`"""
         if not isinstance(channel, str) and channel.guild.id != ctx.guild.id:
             return
 
@@ -162,7 +162,7 @@ class Stars(commands.Cog):
         if not isStarred():
             # Get message from cache
             msg = discord.utils.get(self.bot.cached_messages, id=msg_id)
-            # If not found, get message from discord
+            # If message is not found in the cache, get message from discord
             if not msg:
                 ch = self.bot.get_channel(payload.channel_id)
                 msg = await ch.fetch_message(msg_id)
