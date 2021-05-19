@@ -43,7 +43,7 @@ class General(commands.Cog):
     # Commands
     @commands.command()
     async def ping(self, ctx, arg=None):
-        """`Checks Bots Ping`"""
+        """`Checks Bot's Latency`"""
         if arg == "pong":
             return await ctx.send("Congratulations, you just ponged yourself lol")
 
@@ -56,7 +56,7 @@ class General(commands.Cog):
 
     @commands.command(aliases=["bi", "about", "info",])
     async def botinfo(self, ctx):
-        """`Show the bot's information.`"""
+        """`Shows the bot's information.`"""
         bot_ver = "2.1.A"
         embed = discord.Embed(
             title="About InKY Bot",

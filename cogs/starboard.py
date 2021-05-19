@@ -14,7 +14,7 @@ class Starred:
 
     def __init__(self, message_id: int, bot_message_id: int=None):
         self.id = message_id
-        # Return none for Legacy support
+        # Returns none for Legacy support
         self.bot_message_id = bot_message_id
 
     def __repr__(self):
@@ -45,8 +45,8 @@ class Stars(commands.Cog):
         self.bot = bot
         self.starred = {}
 
-        # Getting starred message from starboard_config.json
-        # [TODO] Make it not spaghetti code?
+        # Gets starred message from starboard_config.json
+        # [TODO] Fix up the code?
         try:
             with open("starboard_config.json", "r") as conf:
                 conf = json.load(conf)
@@ -98,7 +98,7 @@ class Stars(commands.Cog):
     @starboard.command()
     @commands.check(is_mod)
     async def setup(self, ctx, channel: Union[discord.TextChannel, str] = None, amount: int = 5):
-        """`Sets the channel for starboard (Only People with [Administator = True] can use this command)`"""
+        """`Sets the channel for starboard to be used in (Only People with [Administator = True] can use this command)`"""
         if not isinstance(channel, str) and channel.guild.id != ctx.guild.id:
             return
 
@@ -120,7 +120,7 @@ class Stars(commands.Cog):
         if "pins" not in guildConfig:
             guildConfig["pins"] = []
 
-        # Save config to a json file
+        # Saves config to a json file
         self.save_starboard_config(sbConfig)
 
         channelMentionOrDisabled = channel.mention if isinstance(channel, discord.TextChannel) else "`DISABLED`"
@@ -160,9 +160,9 @@ class Stars(commands.Cog):
             return False
 
         if not isStarred():
-            # Get message from cache
+            # Gets message from cache
             msg = discord.utils.get(self.bot.cached_messages, id=msg_id)
-            # If not found, get message from discord
+            # If message is not found in the cache, get message from discord
             if not msg:
                 ch = self.bot.get_channel(payload.channel_id)
                 msg = await ch.fetch_message(msg_id)
