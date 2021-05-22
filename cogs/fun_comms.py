@@ -766,20 +766,23 @@ class Fun(commands.Cog):
     async def hug(self, ctx, member: discord.Member):
         """Offer a hug to someone."""
         e = discord.Embed(
-            title="{} offered you a hug!".format(ctx.author.nick),
-            description="React with any emoji to accept!",
+            title="{} offered you a hug!".format(ctx.author.display_name),
+            description="React to the emoji below to accept!",
         )
         e.set_footer(text="Waiting for answer...", icon_url=ctx.author.avatar_url)
         msg = await ctx.send(member.mention, embed=e)
+        await msg.add_reaction("<:hug:845138204746973195>")
 
         def check(reaction, reactor):
             # return true or false, if its true the action continue
-            return reactor == member
+            return (reactor == member
+                and str(reaction.emoji) == "<:hug:845138204746973195>"
+            )
 
         try:
             # waiting for "true"
             reaction, reactor = await self.client.wait_for(
-                "reaction_add", timeout=60.0, check=check
+                "reaction_add", timeout=120.0, check=check
             )
         except asyncio.TimeoutError:
             # too late
@@ -787,6 +790,7 @@ class Fun(commands.Cog):
                 text="Offer has been declined.", icon_url=ctx.author.avatar_url
             )
             await msg.edit(embed=e)
+            await msg.clear_reactions()
         else:
             # hug go brrrr
             e.set_footer(
@@ -794,7 +798,7 @@ class Fun(commands.Cog):
             )
             await msg.edit(embed=e)
             e = discord.Embed(
-                title="{} hugged {}!".format(ctx.author.nick, member.nick)
+                title="{} hugged {}!".format(ctx.author.display_name, member.display_name)
             )
             e.set_image(
                 url="https://cdn.discordapp.com/attachments/745481731582197780/845473845598224384/hugging.png"
