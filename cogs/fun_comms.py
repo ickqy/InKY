@@ -428,7 +428,7 @@ class Fun(commands.Cog):
         "When karma comes back to punch you in the face, I want to be there in case it needs help.",
         "I thought I had the flu, but then I realized your face makes me sick to my stomach.",
         "You're like Mondays, everyone hates you.",
-        "Keep rolling your eyes, you might find a barain baxck there.",
+        "Keep rolling your eyes, you might find a barain back there.",
         "My phone battery lasts longer than your relationships",
         "I never forget a face, but in your case I would love to make an exception...",
         "You're so ugly when you look in the mirror your reflection looks away.",
@@ -494,8 +494,8 @@ class Fun(commands.Cog):
         "I didn’t change. I grew up. You should try it sometime.",
         "You're so stupid I don't have the time or the crayons to explain this to you.",
         "If looks could kill, you’d soon find out that yours couldn’t.",
-        "I heard you were born on a farm. Any more in the litter?"
-        "Shrek just called, he said he will press charges on for `Identity Theft`"
+        "I heard you were born on a farm. Any more in the litter?",
+        "Shrek just called, he said he will press charges on you for `Identity Theft`",
         "There are 1,013,150 words in the entire English dialect and yet there is not a single combination of them that describes my urge to hit you with a chair.",
         "Save your breath - you're going to need it to blow up your date.",
         "I’m busy right now, can I ignore you another time?",
