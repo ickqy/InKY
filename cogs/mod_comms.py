@@ -167,7 +167,7 @@ class Moderation(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, msg):
 
-        filtered_words = {"-poll"}
+        filtered_words = {"-poll", "-say","-phrase"}
 
         if msg.author == self.client.user:
             return

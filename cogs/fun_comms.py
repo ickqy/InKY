@@ -805,5 +805,11 @@ class Fun(commands.Cog):
             )
             await ctx.send(member.mention, embed=e)
 
+    @commands.command(aliases=["say"])
+    @commands.has_permissions(kick_members = True)
+    async def phrase(self, ctx, *, phrase):
+        """`Tell the bot what to say!`"""
+        await ctx.send(f'{phrase}')
+
 def setup(client):
     client.add_cog(Fun(client))
