@@ -1,23 +1,27 @@
 import discord
 import asyncio
 import textwrap
-from random import choice, randint, random
+import cogs.utils.checks as checks
+
+
 from discord.ext import commands
+from random import choice, randint, random
+
+
 
 class Moderation(commands.Cog):
-
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
 
     @commands.command(aliases=["cc"])
-    @commands.has_permissions(manage_messages = True)
+    @checks.is_mod()
     async def purge(self, ctx, amount=1):
         """`Deletes messages in bulk (Only People with [manage_messages = True] can use this command)`"""
         await ctx.channel.purge(limit=amount)
         await ctx.send("Messages Deleted", delete_after=5)
 
     @commands.command()
-    @commands.has_permissions(kick_members = True)
+    @checks.is_mod()
     async def kick(self, ctx, member : discord.Member, *, reason=None):
         """`Kick a Member (Only People with [kick_members = True] can use this command)`"""
         await member.send(f"You Have been kicked from {ctx.guild.name} for {reason}!")
@@ -25,7 +29,7 @@ class Moderation(commands.Cog):
         await member.kick(reason=reason)
 
     @commands.command()
-    @commands.has_permissions(ban_members = True)
+    @checks.is_mod()
     async def ban(self, ctx, member : discord.Member, *, reason=None):
         """`Ban a Member (Only People with [ban_members = True] can use this command)`"""
         
@@ -44,7 +48,7 @@ class Moderation(commands.Cog):
             await member.ban(reason=reason)
 
     @commands.command()
-    @commands.has_permissions(ban_members = True)
+    @checks.is_mod()
     async def unban(self, ctx, *, member):
         """`Unban a Member (Only People with [ban_members = True] can use this command)`"""
         banned_users = await ctx.guild.bans()
@@ -60,69 +64,7 @@ class Moderation(commands.Cog):
                 return
 
     @commands.command()
-    async def emojilist(self, ctx):
-        """List all emojis in the server."""
-        emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
-        emoji_list = textwrap.wrap(emojis, 1024)
-
-        page = 1
-        total_page = len(emoji_list)
-        embed_reactions = ["◀️", "▶️", "⏹️"]
-
-        def check_reactions(reaction, user):
-            if user == ctx.author and str(reaction.emoji) in embed_reactions:
-                return str(reaction.emoji)
-            else:
-                return False
-
-        def create_embed(ctx, page):
-            e = discord.Embed(
-                title="Emojis",
-                description=emoji_list[page - 1],
-                color=discord.Colour(0xFFFFF0),
-                timestamp=ctx.message.created_at,
-            )
-            e.set_author(
-                name=f"{ctx.guild.name} - {page}/{total_page}",
-                icon_url=ctx.guild.icon_url,
-            )
-            e.set_footer(
-                text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
-            )
-            return e
-
-        embed = create_embed(ctx, page)
-        msg = await ctx.send(embed=embed)
-        for emoji in embed_reactions:
-            await msg.add_reaction(emoji)
-        while True:
-            try:
-                reaction, user = await self.client.wait_for(
-                    "reaction_add", check=check_reactions, timeout=60.0
-                )
-            except asyncio.TimeoutError:
-                break
-            else:
-                emoji = check_reactions(reaction, user)
-                try:
-                    await msg.remove_reaction(reaction.emoji, user)
-                except discord.Forbidden:
-                    pass
-                if emoji == "◀️" and page != 1:
-                    page -= 1
-                    embed = create_embed(ctx, page)
-                    await msg.edit(embed=embed)
-                if emoji == "▶️" and page != total_page:
-                    page += 1
-                    embed = create_embed(ctx, page)
-                    await msg.edit(embed=embed)
-                if emoji == "⏹️":
-                    # await msg.clear_reactions()
-                    break
-        return
-
-    @commands.command()
-    @commands.has_permissions(manage_messages = True)
+    @checks.is_mod()
     async def poll(self, ctx, title, *options):
         emojiLetters = [
             "\N{REGIONAL INDICATOR SYMBOL LETTER A}",
@@ -169,7 +111,7 @@ class Moderation(commands.Cog):
 
         filtered_words = {"-poll", "-say","-phrase"}
 
-        if msg.author == self.client.user:
+        if msg.author == self.bot.user:
             return
         
         else:
@@ -177,5 +119,5 @@ class Moderation(commands.Cog):
                 if word in msg.content:
                     await msg.delete()
 
-def setup(client):
-    client.add_cog(Moderation(client))
+def setup(bot):
+    bot.add_cog(Moderation(bot))

@@ -3,56 +3,28 @@ import random
 import time
 import re
 import datetime
+import textwrap
+import asyncio
+
+
 from discord.ext import commands
 from pytz import timezone
 from random import randint
 
-class MyHelpCommand(commands.MinimalHelpCommand):
-    messages = [
-        "As I say-",
-        "Pogchampo",
-        "F for PogChamp",
-        "If you see this, you are a boomer",
-        "Please leave me alone :]",
-        "Chicken Nuggets, thats it",
-        "imagine doing a bot cause you were bored, pathetic",
-    ]
-
-    def get_command_signature(self, command):
-        return f"``{self.clean_prefix}{command.qualified_name} {command.signature}``"
-
-    def get_ending_note(self) -> str:
-        return self.messages[randint(0, len(self.messages) - 1)]
-
 
 class General(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self._original_help_command = client.help_command
-        client.help_command = MyHelpCommand()
-        client.help_command.cog = self
+    def __init__(self, bot):
+        self.bot = bot
 
-    def cog_unload(self):
-        self.client.help_command = self._original_help_command
-
-    # Events
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print('Bot is Online!')
-    
-    # Commands
     @commands.command()
-    async def ping(self, ctx, arg=None):
-        """`Checks Bot's Latency`"""
-        if arg == "pong":
-            return await ctx.send("Congratulations, you just ponged yourself lol")
+    async def ping(self, ctx):
+        websocket = round(self.bot.latency*1000, 2)
 
-        else:
-            start = time.perf_counter()
-            message = await ctx.send("Ping...")
-            end = time.perf_counter()
-            duration = (end - start) * 1000
-            await message.edit(content='Pong! {:.2f}ms'.format(duration))
+        ping_start = time.perf_counter()
+        msg = await ctx.send(f"Pong! `{websocket}` ms")
+        ping_end = time.perf_counter()
+        typing = (ping_end - ping_start) * 1000
+        return await msg.edit(content=f"Pong! `{websocket}` ms | `{round(typing, 2)}` ms")
 
     @commands.command(aliases=["bi", "about", "info",])
     async def botinfo(self, ctx):
@@ -252,7 +224,7 @@ class General(commands.Cog):
         emojiname=emojiname.replace(" ","_")
         match=re.findall(r"\b(?<!<)\w+\b",emojiname,re.I)
         emojiname=match[0].lower()
-        for emoji_type in self.client.emojis:
+        for emoji_type in self.bot.emojis:
             emoji_name=emoji_type.name.lower()
             if emoji_name == emojiname:
                 emoji=emoji_type
@@ -277,18 +249,67 @@ class General(commands.Cog):
             embed.add_field(name=name, value=value, inline=inline)
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=["sug"])
-    async def suggestion(self, ctx, *, suggestion):
-        """`Give suggestions to add to the bot!`"""
-        
-        bot_owner = self.client.get_user(564610598248120320)
+    @commands.command()
+    async def emojilist(self, ctx):
+        """List all emojis in the server."""
+        emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
+        emoji_list = textwrap.wrap(emojis, 1024)
 
-        if suggestion == None:
-            await ctx.send("Please type a suggjestion to suggest smhmyhead")
+        page = 1
+        total_page = len(emoji_list)
+        embed_reactions = ["◀️", "▶️", "⏹️"]
 
-        else:
-            await bot_owner.send(f'{ctx.author} has suggested {suggestion}')
-            await ctx.send("Thank for your suggestion. The owner will review your suggestion")
+        def check_reactions(reaction, user):
+            if user == ctx.author and str(reaction.emoji) in embed_reactions:
+                return str(reaction.emoji)
+            else:
+                return False
 
-def setup(client):
-    client.add_cog(General(client))
+        def create_embed(ctx, page):
+            e = discord.Embed(
+                title="Emojis",
+                description=emoji_list[page - 1],
+                color=discord.Colour(0xFFFFF0),
+                timestamp=ctx.message.created_at,
+            )
+            e.set_author(
+                name=f"{ctx.guild.name} - {page}/{total_page}",
+                icon_url=ctx.guild.icon_url,
+            )
+            e.set_footer(
+                text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
+            )
+            return e
+
+        embed = create_embed(ctx, page)
+        msg = await ctx.send(embed=embed)
+        for emoji in embed_reactions:
+            await msg.add_reaction(emoji)
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for(
+                    "reaction_add", check=check_reactions, timeout=60.0
+                )
+            except asyncio.TimeoutError:
+                break
+            else:
+                emoji = check_reactions(reaction, user)
+                try:
+                    await msg.remove_reaction(reaction.emoji, user)
+                except discord.Forbidden:
+                    pass
+                if emoji == "◀️" and page != 1:
+                    page -= 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "▶️" and page != total_page:
+                    page += 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "⏹️":
+                    # await msg.clear_reactions()
+                    break
+        return
+
+def setup(bot):
+    bot.add_cog(General(bot))

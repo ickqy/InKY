@@ -1,22 +1,23 @@
 import discord
 import asyncio
 import json
+from discord.ext.commands.core import check
 import requests
+import cogs.utils.checks as checks
+
 
 from discord.ext import commands
 from random import choice, randint, random
-from .utilities.barter import Piglin
-from .utilities import yomama
-from .utilities import roasts
-from .utilities import compliment
+from .utils.barter import Piglin
+from .utils import yomama
+from .utils import roasts
+from .utils import compliment
+
 
 class Fun(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
-    def __init__(self, client):
-        self.client = client
-        self.pins = []
-    
-    # Commands
     @commands.command(aliases=["fs"])
     async def findseed(self, ctx):
         """`Test your Minecraft RNG, but in a bot command`"""
@@ -367,7 +368,7 @@ class Fun(commands.Cog):
                 await ctx.send("The game is over and you lost.")
                 return
             await ctx.send(f'Guess the number! Pick from 1 to 100 and get some hints! This is attempt #{i}.')
-            response = await self.client.wait_for('message', check = lambda message: message.author == ctx.author)
+            response = await self.bot.wait_for('message', check = lambda message: message.author == ctx.author)
             try:
                 guess = int(response.content)
             except ValueError:
@@ -508,17 +509,6 @@ class Fun(commands.Cog):
                 f"{ctx.author.mention} -> you owe ${taxmona} in taxes - {moreTaxesMsg[randint(0, len(moreTaxesMsg) - 1)]}"
             )
 
-    @commands.command()
-    async def canihaveahug(self, ctx):
-        message = await ctx.send("https://cdn.discordapp.com/attachments/745481731582197780/803337680086761522/giphy.gif")
-        await asyncio.sleep(2.5)
-        await message.edit(content="https://cdn.discordapp.com/attachments/745481731582197780/803338739882524742/next.png")
-
-    @commands.command(aliases = ['memes'])
-    async def meme(self, ctx):
-        memejson = requests.get('https://meme-api.herokuapp.com/gimme/memes').json()
-        await ctx.send(memejson['url'])
-
     @commands.group(aliases = ['bb'], example=["group"], invoke_without_command=True)
     async def blackboxgame(self, ctx, arg=None):
         """`A little game I created`"""
@@ -590,7 +580,7 @@ class Fun(commands.Cog):
     @blackboxgame.command(name="submit")
     async def submit(self, ctx, checks=None, video=None):
 
-        bot_owner = self.client.get_user(564610598248120320)
+        bot_owner = self.bot.get_user(564610598248120320)
 
         if checks == None:
             await ctx.send("Please give me the amout of <:greenTick:767209095090274325> you got in the game")
@@ -678,7 +668,7 @@ class Fun(commands.Cog):
 
         try:
             # waiting for "true"
-            reaction, reactor = await self.client.wait_for(
+            reaction, reactor = await self.bot.wait_for(
                 "reaction_add", timeout=120.0, check=check
             )
         except asyncio.TimeoutError:
@@ -703,10 +693,10 @@ class Fun(commands.Cog):
             await ctx.send(member.mention, embed=e)
 
     @commands.command(aliases=["say"])
-    @commands.has_permissions(kick_members = True)
+    @checks.is_botmaster()
     async def phrase(self, ctx, *, phrase):
         """`Tell the bot what to say!`"""
         await ctx.send(f'{phrase}')
 
-def setup(client):
-    client.add_cog(Fun(client))
+def setup(bot):
+    bot.add_cog(Fun(bot))
