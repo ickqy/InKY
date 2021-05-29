@@ -48,7 +48,7 @@ class kBot(commands.Bot):
         self.logger = logging.getLogger("discord")
         
         # bot's default prefix
-        self.def_prefix = ["--"]
+        self.def_prefix = ["-"]
 
     @tasks.loop(minutes=2)
     async def guild_counter(self):
