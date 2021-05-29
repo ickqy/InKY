@@ -11,6 +11,7 @@ extensions = [
     "cogs.general",
     "cogs.help",
     "cogs.mods",
+    "cogs.music",
     "cogs.starboard",
 ]
 

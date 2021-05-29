@@ -10,3 +10,6 @@ discord.log
 
 # Database
 starboard_config.json
+
+# exe files
+ffmpeg.exe
