@@ -186,7 +186,6 @@ nice = (
   "You're so rad",
   "You're more fun than a barrel of monkeys",
   "You're nicer than a day on the beach",
-  "Your glass is the fullest",
   "You look so perfect",
   "You're more fun than bubble wrap",
   "You're the bee's knees",
