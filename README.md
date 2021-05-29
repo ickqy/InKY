@@ -1,4 +1,4 @@
-# InKY Bot
+# kBot
 
 This is a small little fun project I am working on
 
