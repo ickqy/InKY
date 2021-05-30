@@ -1,19 +1,30 @@
 import discord
 import logging
 import re
+import time
 
 from discord.ext import commands, tasks
 
 import config
 
-extensions = [
-    "cogs.fun",
-    "cogs.general",
-    "cogs.help",
-    "cogs.mods",
-    "cogs.music",
-    "cogs.starboard",
-]
+
+def get_cogs():
+    """callable extensions"""
+    extensions = [
+        "cogs.fun",
+        "cogs.general",
+        "cogs.help",
+        "cogs.mods",
+        "cogs.music",
+        "cogs.starboard",
+    ]
+
+    return extensions
+
+
+extensions = get_cogs()
+
+start_time = time.time()
 
 
 def _callable_prefix(bot, message):
