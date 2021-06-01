@@ -6,8 +6,11 @@ import typing as t
 from enum import Enum
 
 import discord
+from discord import colour
+from discord.colour import Color
 import wavelink
 from discord.ext import commands
+from wavelink.player import Track
 
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 OPTIONS = {
@@ -295,7 +298,62 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.teardown()
         await ctx.send("Disconnected.")
 
-    @commands.command(name="play")
+    @commands.command(name="clear", aliases=["c"])
+    async def clear_command(self, ctx):
+        player = self.get_player(ctx)
+        if player.queue.is_empty:
+            raise QueueIsEmpty
+        
+        else:
+            player.queue.empty()
+            await player.set_pause(True)
+            await ctx.send("The queue has been cleared.")
+
+    @clear_command.error
+    async def clear_command_error(self, ctx, exc):
+        if isinstance(exc, QueueIsEmpty):
+            await ctx.send("No songs to clear as the queue is empty.")
+        elif isinstance(exc, NoVoiceChannel):
+            await ctx.send("You are not in a voice channel, therefore there's no queue to clear.")
+
+    @commands.command(name="nowplaying", aliases=["np"])
+    async def nowplaying_command(self, ctx):
+        player = self.get_player(ctx)
+        if player.is_paused:
+            raise PlayerIsAlreadyPaused
+
+        if player.queue.is_empty:
+            raise QueueIsEmpty
+
+        else:
+            embed=discord.Embed(
+                title="Now Playing", 
+                description=f"**{player.queue.current_track}**",
+                colour=ctx.author.colour
+                )
+            embed.add_field(
+                name="Time Stamp", 
+                value=f"{round(player.position/1000)//60:02}:{round(player.position/1000)%60:02}/"
+                + f"{round(player.queue.current_track.length/1000)//60:02}:{round(player.queue.current_track.length/1000)%60:02}",
+                inline=False
+                )
+            await ctx.send(embed=embed)
+
+    @nowplaying_command.error
+    async def nowplaying_command_error(self, ctx, exc):
+        if isinstance(exc, PlayerIsAlreadyPaused):
+            await ctx.send("No songs are currently playing")
+        elif isinstance(exc, QueueIsEmpty):
+            await ctx.send("There are no songs in the queue")
+
+    @nowplaying_command.error
+    async def now_playing_error(self, ctx, exc):
+        if isinstance(exc, PlayerIsAlreadyPaused):
+            await ctx.send("Now songs are currentlly playing")
+        if isinstance(exc, QueueIsEmpty):
+            await ctx.send("There are no songs in the queue.")
+
+    @commands.command(name="play", aliases=["p"])
     async def play_command(self, ctx, *, query: t.Optional[str]):
         player = self.get_player(ctx)
 
@@ -364,6 +422,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="previous")
     async def previous_command(self, ctx):
+        """`Go to the previous song in the queue`"""
         player = self.get_player(ctx)
 
         if not player.queue.history:
@@ -382,6 +441,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="shuffle")
     async def shuffle_command(self, ctx):
+        """`Shuffle the songs in the queue`"""
         player = self.get_player(ctx)
         player.queue.shuffle()
         await ctx.send("Queue shuffled.")
@@ -393,6 +453,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="repeat")
     async def repeat_command(self, ctx, mode: str):
+        """`Reapeat songs, arguments are none, 1 and all`"""
         if mode not in ("none", "1", "all"):
             raise InvalidRepeatMode
 
@@ -400,8 +461,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         player.queue.set_repeat_mode(mode)
         await ctx.send(f"The repeat mode has been set to {mode}.")
 
-    @commands.command(name="queue")
+    @commands.command(name="queue", aliases=["q"])
     async def queue_command(self, ctx, show: t.Optional[int] = 10):
+        """`Check what songs are in the queue`"""
         player = self.get_player(ctx)
 
         if player.queue.is_empty:
