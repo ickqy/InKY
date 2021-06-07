@@ -13,3 +13,6 @@ starboard_config.json
 
 # exe files
 ffmpeg.exe
+
+# Activity Status
+cogs/activity.py
