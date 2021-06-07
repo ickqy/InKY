@@ -17,6 +17,7 @@ def get_cogs():
         "cogs.mods",
         "cogs.music",
         "cogs.starboard",
+        "cogs.activity",
     ]
 
     return extensions
@@ -62,20 +63,7 @@ class kBot(commands.Bot):
         # bot's default prefix
         self.def_prefix = ["-"]
 
-    @tasks.loop(minutes=2)
-    async def guild_counter(self):
-        """
-        Bot's guild live count.
-        """
-        activity = discord.Activity(
-            name=f"over {len(self.guilds)} servers", type=discord.ActivityType.watching
-        )
-        await self.change_presence(activity=activity)
-
     async def on_ready(self):
-        # change bot's presence into guild live count
-        self.guild_counter.start()
-
         # load all listed extensions
         for extension in extensions:
             self.load_extension(extension)

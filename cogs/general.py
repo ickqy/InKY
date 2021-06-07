@@ -29,21 +29,21 @@ class General(commands.Cog):
     @commands.command(aliases=["bi", "about", "info",])
     async def botinfo(self, ctx):
         """`Shows the bot's information.`"""
-        bot_ver = "2.1.A"
+        bot_ver = "3.2"
         embed = discord.Embed(
-            title="About InKY Bot",
+            title="About kBot",
             colour=discord.Colour(0xFFFFF0),
             timestamp=ctx.message.created_at,
         )
-        embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/755958568041316383/797303173391974430/image0.jpg')
-        embed.add_field(name="InKY Creator", value="<@564610598248120320>")
+        embed.set_thumbnail(url = self.bot.user.avatar_url)
+        embed.add_field(name="kBot Creator", value="<@564610598248120320>")
         embed.add_field(
             name="discord.py",
-            value=f"[{discord.__version__}](https://github.com/xIKYx/InKY-Bot)",
+            value=f"[{discord.__version__}](https://github.com/ickqy/kBot)",
         )
         embed.add_field(
             name="About",
-            value="**InKY Bot** is an open source bot, "
+            value="**kBot** is an open source bot, "
             + "a fork of [mcbeDiscordBot](https://github.com/AnInternetTroll/mcbeDiscordBot) "
             + "(Steve the Bot) created by [AnInternetTroll](https://github.com/AnInternetTroll), "
             + "and from [ZiRO-Bot](https://github.com/ZiRO-Bot/ziBot) (ziBot) created by "

@@ -1,16 +1,19 @@
+import discord
 import asyncio
 import datetime as dt
 import random
 import re
 import typing as t
-from enum import Enum
+import wavelink
 
-import discord
+
 from discord import colour
 from discord.colour import Color
-import wavelink
+from enum import Enum
 from discord.ext import commands
+from wavelink import player
 from wavelink.player import Track
+
 
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 OPTIONS = {
@@ -191,7 +194,7 @@ class Player(wavelink.Player):
                     for i, t in enumerate(tracks[:5])
                 )
             ),
-            colour=ctx.author.colour,
+            colour=discord.Colour(0x000000),
             timestamp=dt.datetime.utcnow()
         )
         embed.set_author(name="Query Results")
@@ -329,7 +332,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             embed=discord.Embed(
                 title="Now Playing", 
                 description=f"**{player.queue.current_track}**",
-                colour=ctx.author.colour
+                colour=discord.Colour(0x000000),
                 )
             embed.add_field(
                 name="Time Stamp", 
@@ -472,7 +475,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         embed = discord.Embed(
             title="Queue",
             description=f"Showing up to next {show} tracks",
-            colour=ctx.author.colour,
+            colour=discord.Colour(0x000000),
             timestamp=dt.datetime.utcnow()
         )
         embed.set_author(name="Query Results")
@@ -496,6 +499,19 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("The queue is currently empty.")
 
+    @commands.command(name = "soundeffect", aliases = ['se'])
+    async def soundeffect_command(self, ctx, arg="amongus_report"):
+        player = self.get_player(ctx)
+        if not ctx.author.voice:
+            await ctx.send("You are not in a voice channel, you must be in a voice channel to run this command.")
+
+        if not player.is_connected:
+            await player.connect(ctx)
+
+        if player.is_connected:
+            source = await self.wavelink.get_tracks(f'/Users/ferny/Desktop/openjdk-16_windows-x64_bin/jdk-16/bin/sounds/{arg}.mp4')
+            await player.play(source[0])
+            print(source[0])
 
 def setup(bot):
     bot.add_cog(Music(bot))
