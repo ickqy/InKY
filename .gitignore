@@ -16,3 +16,4 @@ database.db
 ffmpeg.exe
 
 #Status
+cogs/status.py
