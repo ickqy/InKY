@@ -1,4 +1,5 @@
-# Time formatting from speedrunbot
+import datetime
+
 def realtime(time):  # turns XXX.xxx into h m s ms
     ms = int(time * 1000)
     s, ms = divmod(ms, 1000)
@@ -19,29 +20,5 @@ def realtime(time):  # turns XXX.xxx into h m s ms
             f.remove(e)  # remove item if empty
     return " ".join(f)  # src formatting 0
 
-
-def pformat(text):
-    text = text.lower()
-    text = text.replace(" ", "_")
-    for s in "%()":
-        text = text.replace(s, "")
-    return text
-
-
-def hformat(text, all_upper=False):
-    text = text.replace("_", " ")
-    if all_upper:
-        return text.upper()
-    return text.title()
-
-
-# Stolen from neo bot by nickofolas
-def bar_make(value, gap, *, length=10, point=False, fill="█", empty=" "):
-    bar = ""
-    scaled_value = (value / gap) * length
-    for i in range(1, (length + 1)):
-        check = (i == round(scaled_value)) if point else (i <= scaled_value)
-        bar += fill if check else empty
-    if point and (bar.count(fill) == 0):
-        bar = fill + bar[1:]
-    return bar
+def formatDateTime(datetime):
+    return datetime.strftime("%A, %d %b %Y • %H:%M:%S UTC")

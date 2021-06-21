@@ -10,9 +10,9 @@ discord.log
 
 # Database
 starboard_config.json
+database.db
 
 # exe files
 ffmpeg.exe
 
-# Activity Status
-cogs/activity.py
+#Status

@@ -2,14 +2,17 @@ import discord
 import asyncio
 import textwrap
 import time
+import typing
+
 import cogs.utils.checks as checks
 
-
-from discord.ext import commands
-from random import choice, randint, random
 from discord.errors import Forbidden, NotFound
+from discord.ext import commands
+
+from random import choice, randint, random
+
 from core.bot import get_cogs
-from cogs.utils.formatting import realtime
+from .utils.formatting import realtime
 
 
 class Moderation(commands.Cog):
@@ -21,7 +24,7 @@ class Moderation(commands.Cog):
     async def purge(self, ctx, amount=1):
         """`Deletes messages in bulk (Only People with [manage_messages = True] can use this command)`"""
         await ctx.channel.purge(limit=amount)
-        await ctx.send("Messages Deleted", delete_after=5)
+        await ctx.reply("Messages Deleted", delete_after=5)
 
     @commands.command(usage="(member) [reason]")
     @checks.is_mod()
@@ -34,13 +37,13 @@ class Moderation(commands.Cog):
     ):
         """Kick a member."""
         if not members:
-            return await ctx.send(
+            return await ctx.reply(
                 f"Usage: `{ctx.prefix}{ctx.command.qualified_name} {ctx.command.signature}`"
             )
 
         for member in members:
             if self.bot.user == member:  # Just why would you want to mute him?
-                await ctx.send(f"You're not allowed to kick ziBot!")
+                await ctx.reply(f"You're not allowed to kick InKY!")
             else:
                 try:
                     await member.send(
@@ -52,7 +55,7 @@ class Moderation(commands.Cog):
                 try:
                     await ctx.guild.kick(member, reason=reason)
                 except Forbidden:
-                    await ctx.send(
+                    await ctx.reply(
                         f"I can't kick {member.mention} (No permission or the member is higher than me on the hierarchy)"
                     )
                     return
@@ -77,19 +80,19 @@ class Moderation(commands.Cog):
         try:
             min_ban = int(r_and_d[1])
         except ValueError:
-            await ctx.send(
+            await ctx.reply(
                 f"**WARNING**: {r_and_d[1]} is not a valid number, value `0` is used instead."
             )
             min_ban = 0
 
         if not members:
-            return await ctx.send(
+            return await ctx.reply(
                 f"Usage: `{ctx.prefix}{ctx.command.qualified_name} {ctx.command.signature}`"
             )
 
         for member in members:
             if self.bot.user == member:  # Just why would you want to mute him?
-                await ctx.send(f"You're not allowed to ban ziBot!")
+                await ctx.reply(f"You're not allowed to ban InKY!")
             else:
                 try:
                     await member.send(
@@ -103,8 +106,8 @@ class Moderation(commands.Cog):
                 try:
                     await ctx.guild.ban(member, reason=reason, delete_message_days=0)
                 except Forbidden:
-                    await ctx.send(
-                        f"I can't ban {member.mention} (No permission or the member is higher than me on the hierarchy)"
+                    await ctx.reply(
+                        f"I can't ban {member.mention} (No permission or the member is higher than me on the monarchy )"
                     )
                     return
                 duration = ""
@@ -123,7 +126,7 @@ class Moderation(commands.Cog):
     async def unban(self, ctx, members: commands.Greedy[discord.User]):
         """Unban a member."""
         if not members:
-            return await ctx.send(
+            return await ctx.reply(
                 f"Usage: `{ctx.prefix}{ctx.command.qualified_name} {ctx.command.signature}`"
             )
 
@@ -137,7 +140,7 @@ class Moderation(commands.Cog):
             try:
                 await ctx.guild.unban(member)
             except NotFound:
-                await ctx.send(f"{member.mention} is not banned!")
+                await ctx.reply(f"{member.mention} is not banned!")
             else:
                 await ctx.send(
                     f"{member.mention} has been unbanned by {ctx.author.mention}!"
@@ -171,16 +174,16 @@ class Moderation(commands.Cog):
             for ext in exts:
                 try:
                     self.bot.reload_extension(f"{ext}")
-                    reloaded.append(f"<:check_mark:747274119426605116>| {ext}")
+                    reloaded.append(f"<:check:854498005221769228>| {ext}")
                 except commands.ExtensionNotFound:
-                    reloaded.append(f"<:check_mark:747271588474388522>| {ext}")
+                    reloaded.append(f"<:check:854498005221769228>| {ext}")
                     error += 1
                 except commands.ExtensionNotLoaded:
-                    reloaded.append(f"<:cross_mark:747274119275479042>| {ext}")
+                    reloaded.append(f"<:cross:854498023061061633>| {ext}")
                     error += 1
                 except commands.ExtensionFailed:
                     self.bot.logger.exception(f"Failed to reload extension {ext}:")
-                    reloaded.append(f"<:cross_mark:747274119275479042>| {ext}")
+                    reloaded.append(f"<:cross:854498023061061633>| {ext}")
                     error += 1
             reloaded = "\n".join(reloaded)
             embed = discord.Embed(
@@ -223,7 +226,8 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @checks.is_mod()
-    async def poll(self, ctx, title, *options):
+    async def poll(self, ctx, title, role: typing.Union[discord.Role, str], *options):
+        """`Create a poll with the bot`"""
         emojiLetters = [
             "\N{REGIONAL INDICATOR SYMBOL LETTER A}",
             "\N{REGIONAL INDICATOR SYMBOL LETTER B}",
@@ -252,30 +256,31 @@ class Moderation(commands.Cog):
             "\N{REGIONAL INDICATOR SYMBOL LETTER Y}",
             "\N{REGIONAL INDICATOR SYMBOL LETTER Z}"
         ]
-        
-        options = list(options)
-        for i in range(len(options)):
-            options[i] = f"{emojiLetters[i]}  {options[i]}"
-        embed = discord.Embed(title=title,
-        description='\n'.join(options),
-        color=0xff0000)
-        message = await ctx.send(embed=embed)
-        for i in range(len(options)):
-            await message.add_reaction(emojiLetters[i])
-        await ctx.send('@everyone')
 
-    @commands.Cog.listener()
-    async def on_message(self, msg):
-
-        filtered_words = {"-poll", "-say","-phrase"}
-
-        if msg.author == self.bot.user:
+        if role is None:
+            await ctx.reply("Please choose what role you want to ping. `-poll <everyone/here/id of role> <rest of poll>`")
             return
         
         else:
-            for word in filtered_words:
-                if word in msg.content:
-                    await msg.delete()
+            await discord.Message.delete(ctx.message)
+            options = list(options)
+            for i in range(len(options)):
+                options[i] = f"{emojiLetters[i]}  {options[i]}"
+            embed = discord.Embed(title=title,
+            description='\n'.join(options),
+            color=0x000000)
+            try:    
+                message = await ctx.send(
+                content = role.mention,
+                embed=embed
+                )
+            except:
+                message = await ctx.send(
+                content = "@"+role,
+                embed=embed
+                )
+            for i in range(len(options)):
+                await message.add_reaction(emojiLetters[i])
 
 def setup(bot):
     bot.add_cog(Moderation(bot))

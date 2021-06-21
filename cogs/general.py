@@ -5,11 +5,21 @@ import re
 import datetime
 import textwrap
 import asyncio
+import unicodedata
+from discord import channel
+import discord.utils
+
+import cogs.utils.checks as checks
 
 
-from discord.ext import commands
+from discord.ext.commands.core import check, command
+from discord import message
+from discord import colour
+from discord.ext import commands   
+
 from pytz import timezone
 from random import randint
+from typing import Union
 
 
 class General(commands.Cog):
@@ -18,10 +28,11 @@ class General(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
+        """`See the bot's latency`"""
         websocket = round(self.bot.latency*1000, 2)
 
         ping_start = time.perf_counter()
-        msg = await ctx.send(f"Pong! `{websocket}` ms")
+        msg = await ctx.reply(f"Pong! `{websocket}` ms")
         ping_end = time.perf_counter()
         typing = (ping_end - ping_start) * 1000
         return await msg.edit(content=f"Pong! `{websocket}` ms | `{round(typing, 2)}` ms")
@@ -29,21 +40,21 @@ class General(commands.Cog):
     @commands.command(aliases=["bi", "about", "info",])
     async def botinfo(self, ctx):
         """`Shows the bot's information.`"""
-        bot_ver = "3.2"
+        bot_ver = "v4.0"
         embed = discord.Embed(
-            title="About kBot",
-            colour=discord.Colour(0xFFFFF0),
+            title="About InKY",
+            colour=discord.Colour(0x000000),
             timestamp=ctx.message.created_at,
         )
         embed.set_thumbnail(url = self.bot.user.avatar_url)
-        embed.add_field(name="kBot Creator", value="<@564610598248120320>")
+        embed.add_field(name="InKY Creator", value="<@564610598248120320>")
         embed.add_field(
             name="discord.py",
-            value=f"[{discord.__version__}](https://github.com/ickqy/kBot)",
+            value=f"[{discord.__version__}](https://github.com/ickqy/InKY)",
         )
         embed.add_field(
             name="About",
-            value="**kBot** is an open source bot, "
+            value="**InKY** is an open source bot, "
             + "a fork of [mcbeDiscordBot](https://github.com/AnInternetTroll/mcbeDiscordBot) "
             + "(Steve the Bot) created by [AnInternetTroll](https://github.com/AnInternetTroll), "
             + "and from [ZiRO-Bot](https://github.com/ZiRO-Bot/ziBot) (ziBot) created by "
@@ -54,7 +65,7 @@ class General(commands.Cog):
         embed.set_footer(
             text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
         )
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     @commands.command(aliases=["ui"], usage="[member]")
     async def userinfo(self, ctx, *, user: discord.Member = None):
@@ -63,28 +74,29 @@ class General(commands.Cog):
 
         def stat(x):
             return {
-                "offline": "<:status_offline:747799247243575469>",
-                "idle": "<:status_idle:747799258316668948>",
-                "dnd": "<:status_dnd:747799292592259204>",
-                "online": "<:status_online:747799234828435587>",
-                "streaming": "<:status_streaming:747799228054765599>",
+                "offline": "<:offline:854498073622872094>",
+                "idle": "<:idle:854498072784535583>",
+                "dnd": "<:dnd:854498023027113984>",
+                "online": "<:online:854498112700940349>",
+                "streaming": "<:streaming:854498144866664458>",
             }.get(str(x), "None")
 
         def badge(x):
             return {
-                "UserFlags.hypesquad_balance": "<:balance:747802468586356736>",
-                "UserFlags.hypesquad_brilliance": "<:brilliance:747802490241810443>",
-                "UserFlags.hypesquad_bravery": "<:bravery:747802479533490238>",
-                "UserFlags.bug_hunter": "<:bughunter:747802510663745628>",
-                "UserFlags.booster": "<:booster:747802502677659668>",
-                "UserFlags.hypesquad": "<:hypesquad:747802519085776917>",
-                "UserFlags.partner": "<:partner:747802528594526218>",
-                "UserFlags.owner": "<:owner:747802537402564758>",
-                "UserFlags.staff": "<:stafftools:747802548391379064>",
-                "UserFlags.early_supporter": "<:earlysupport:747802555689730150>",
-                "UserFlags.verified": "<:verified:747802457798869084>",
-                "UserFlags.verified_bot": "<:verified:747802457798869084>",
-                "UserFlags.verified_bot_developer": "<:verified_bot_developer:748090768237002792>",
+                "UserFlags.bug_hunter": "<:bughunter:854497987682500630>",
+                "UserFlags.bug_hunter_level_2": "<:goldbughunter:854498044899885096>",
+                "UserFlags.early_supporter": "<:earlysupporter:854498023014006834>",
+                "UserFlags.verified_bot_developer": "<:verifiedbotdev:854498023027113994>",
+                "UserFlags.hypesquad": "<:hypesquad:854498045013655553>",
+                "UserFlags.hypesquad_balance": "<:balance:854497958606798858>",
+                "UserFlags.hypesquad_bravery": "<:bravery:854497968262610944>",
+                "UserFlags.hypesquad_brilliance": "<:brilliance:855167273659662366>",
+                "UserFlags.partner": "<:partner:854498113107656714>",
+                "UserFlags.staff": "<:staff:854498113284472872>",
+                "UserFlags.verified": "<:verified:854498144879509514>",
+                "UserFlags.verified_bot": "<:verified:854498144879509514>",
+                "UserFlags.booster": "<:booster:855190686382030848>",
+                "UserFlags.owner": "<:owner:855191603597541397>",
             }.get(x, "🚫")
 
         def activity(x):
@@ -109,7 +121,7 @@ class General(commands.Cog):
                 if role.name != "@everyone":
                     roles.append(role.mention)
 
-        jakarta = timezone("Asia/Jakarta")
+        jakarta = timezone("Europe/London")
 
         if member:
             status = member.status
@@ -120,7 +132,7 @@ class General(commands.Cog):
         embed = discord.Embed(
             description=f"{statEmoji}({status})\n"
             + (
-                "<:activity:748091280227041281>"
+                "<:activity:854497939229376512>"
                 + activity(str(member.activity.type).replace("ActivityType.", ""))
                 + f"**{member.activity.name}**"
                 if member and member.activity
@@ -140,15 +152,15 @@ class General(commands.Cog):
         )
         embed.add_field(
             name="Created on",
-            value=member.created_at.replace(tzinfo=timezone("UTC"))
+            value=member.created_at.replace(tzinfo=timezone("GMT"))
             .astimezone(jakarta)
-            .strftime("%a, %#d %B %Y, %H:%M WIB"),
+            .strftime("%a, %#d %B %Y, %H:%M UTC"),
         )
         embed.add_field(
             name="Joined on",
-            value=member.joined_at.replace(tzinfo=timezone("UTC"))
+            value=member.joined_at.replace(tzinfo=timezone("GMT"))
             .astimezone(jakarta)
-            .strftime("%a, %#d %B %Y, %H:%M WIB")
+            .strftime("%a, %#d %B %Y, %H:%M UTC")
             if member
             else "Not a member.",
         )
@@ -163,14 +175,14 @@ class General(commands.Cog):
         embed.set_footer(
             text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
         )
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     @commands.command(aliases=["si"])
     async def serverinfo(self, ctx):
         """`Show server information.`"""
         embed = discord.Embed(
             title=f"About {ctx.guild.name}",
-            colour=discord.Colour(0xFFFFF0),
+            colour=discord.Colour(0x000000),
             timestamp=ctx.message.created_at,
         )
 
@@ -191,12 +203,14 @@ class General(commands.Cog):
         )
         embed.add_field(
             name="Channels",
-            value="<:categories:747750884577902653>"
+            value="<:category:855196538912768041>"
             + f" {len(ctx.guild.categories)}\n"
-            + "<:text_channel:747744994101690408>"
+            + "<:text_channel:854498144866795572>"
             + f" {len(ctx.guild.text_channels)}\n"
-            + "<:voice_channel:747745006697185333>"
-            + f" {len(ctx.guild.voice_channels)}",
+            + "<:voice_channel:854498144917127209>"
+            + f" {len(ctx.guild.voice_channels)}\n"
+            + "<:stage_channel:854498113376747550>"
+            + f" {len(ctx.guild.stage_channels)}",
         )
         embed.add_field(name="Members", value=f"{ctx.guild.member_count}")
         if len(boosters) < 5:
@@ -216,48 +230,64 @@ class General(commands.Cog):
         else:
             embed.add_field(name=f"Roles", value=f"{len(roles)}")
         embed.set_footer(text=f"ID: {ctx.guild.id}")
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
-    @commands.command(aliases=["ei"])
-    async def emojiinfo(self, ctx ,* ,emojiname:str):
-        '''Displays Emoji Information'''
-        emojiname=emojiname.replace(" ","_")
-        match=re.findall(r"\b(?<!<)\w+\b",emojiname,re.I)
-        emojiname=match[0].lower()
-        for emoji_type in self.bot.emojis:
-            emoji_name=emoji_type.name.lower()
-            if emoji_name == emojiname:
-                emoji=emoji_type
-                break
-        embed = discord.Embed(title="Emoji information",colour=0xff00ff,timestamp=datetime.datetime.utcnow())
-        embed.set_thumbnail(url=emoji.url)
-        fields = [("Name", emoji.name, True),
-        ("Emoji Preview",(emoji), True),
-        ("ID",emoji.id, True),
-        ("Created by", (f"{emoji.user}"), True),
-        ("Created at", emoji.created_at.strftime("%d/%m/%Y %H:%M:%S"), True),
-        ("Emoji Url", emoji.url, True),
-        ("Emoji Guild Name", emoji.guild, True),
-        ("Emoji Guild ID", emoji.guild_id, True),
-        ("Bot String", f"`{emoji}`", True),
-        ("Is Animated?", emoji.animated, True),
-        ("Is Restricted?", len(emoji.roles), True),
-        ("Can Bot use It?", emoji.is_usable(), True),
-        ("Is Available?", emoji.available, True),
-        ("Is Managed by Twitch?",emoji.managed, True)]
-        for name, value, inline in fields:
-            embed.add_field(name=name, value=value, inline=inline)
-        await ctx.send(embed=embed)
+    @commands.command(aliases = ["ut"])
+    async def uptime(self, ctx):
+        """`Check the bot's uptime`"""
+        seconds = time.time() - self.bot.start_time
+        m, s = divmod(seconds, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        uptime_str = f'{int(d)}d : {int(h)}h : {int(m)}m : {int(s)}s'
 
-    @commands.command()
+        await ctx.reply(f"Heyo! I have been awake for `{uptime_str}`")
+
+    @commands.command(name="emojiinfo", aliases=["ei"], brief="Get an emoji's information")
+    async def emojiinfo(
+        self, ctx, emoji: Union[discord.Emoji, discord.PartialEmoji, str]
+    ):
+        try:
+            if emoji.animated:
+                e = discord.Embed(
+                    title=f":{emoji.name}:",
+                    description=f"`ID: {emoji.id}`\n`Bot String: <\u200b:{emoji.name}:{emoji.id}>`\n`Type: Custom Emoji`",
+                    color=discord.Colour(0x000000)
+                )
+                e.set_image(url=emoji.url)
+            else:
+                e = discord.Embed(
+                    title=f":{emoji.name}:",
+                    description=f"`ID: {emoji.id}`\n`Bot String: <\u200b:{emoji.name}:{emoji.id}>`\n`Type: Custom Emoji`",
+                    colour=discord.Colour(0x000000)
+                )
+                e.set_image(url=emoji.url)
+        except AttributeError:
+            try:
+                e = discord.Embed(
+                    title=" - ".join(
+                        (
+                            emoji,
+                            hex(ord(emoji)).replace("0x", r"\u"),
+                            unicodedata.name(emoji),
+                        )
+                    ),
+                    description="`Type: Unicode`",
+                    colour=discord.Colour(0x000000)
+                )
+            except TypeError:
+                return await ctx.reply("`{}` is not a valid emoji!".format(emoji))
+        return await ctx.reply(embed=e)
+
+    @commands.command(aliases=["el"])
     async def emojilist(self, ctx):
-        """List all emojis in the server."""
+        """`List all emojis in the server.`"""
         emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
         emoji_list = textwrap.wrap(emojis, 1024)
 
         page = 1
         total_page = len(emoji_list)
-        embed_reactions = ["◀️", "▶️", "⏹️"]
+        embed_reactions = ["◀️", "⏹️", "▶️"]
 
         def check_reactions(reaction, user):
             if user == ctx.author and str(reaction.emoji) in embed_reactions:
@@ -269,7 +299,7 @@ class General(commands.Cog):
             e = discord.Embed(
                 title="Emojis",
                 description=emoji_list[page - 1],
-                color=discord.Colour(0xFFFFF0),
+                color=discord.Colour(0x000000),
                 timestamp=ctx.message.created_at,
             )
             e.set_author(
@@ -282,7 +312,7 @@ class General(commands.Cog):
             return e
 
         embed = create_embed(ctx, page)
-        msg = await ctx.send(embed=embed)
+        msg = await ctx.reply(embed=embed)
         for emoji in embed_reactions:
             await msg.add_reaction(emoji)
         while True:
@@ -310,6 +340,58 @@ class General(commands.Cog):
                     # await msg.clear_reactions()
                     break
         return
+
+    @commands.command(aliases=["r"])
+    async def report(self, ctx, *, issue):
+        channel_id = 856596032988512287
+        channel = self.bot.get_channel(channel_id)
+        await ctx.reply("Thanks, your issue has been reported.")
+        await channel.send(f"<@!564610598248120320>, {ctx.author.mention} reported:\n{issue}")
+
+    @commands.command(aliases=["cl"])
+    async def changelog(self,ctx):
+        await ctx.reply(
+            "`Change Log`\n"
+            "\n"
+            "**~~kBot~~ InKY v4.0**\n"
+            "\n"
+            "~~kBot~~ InKY v4.0 is out! This is the biggest update InKY has ever gotten. Since the very beginning, the goal of this bot is for users to be able to enjoy fun bot commands without the limitations of a cooldown. And in the past few months, the bot has gotten more fun commands and it has also gotten general commands for ease of use in the server. Here are the changes the bot got.\n"
+            "\n"
+            "**Bot Appearance:**\n"
+            "> Change the name back to InKY due to feedback\n"
+            "> Color pallets are now finally matching\n"
+            "\n"
+            "**New Commands:**\n"
+            "> Hack Command (hack someone)\n"
+            "> Snipe Command (snipe the latest message that got deleted)\n"
+            "> Quote Command (get a random quote)\n"
+            "> Uptime Command (check the uptime of the bot)\n"
+            "> Report Command (report an issue with the bot)\n"
+            "> Sound Effect List Command (get the list of available sound effects)\n"
+            "> Reminder Command (set a reminder)\n"
+            "> Time Command (get the current time in UTC)\n"
+            "> Changelog Command (get the changelog)\n"
+            "\n"
+            "**Modified Commands:**\n"
+            "> Findseedbutvisual - Modified it to have a rigged section and has more visual effects\n"
+            "> Findseedbutvisualbutpipega - Modified it to have a rigged sections and more visual effects\n"
+            "> Compliment - Modified it to avoid bots and also a new look\n"
+            "> Roast - Modified it to avoid bots and also a new look\n"
+            "> Blackboxgame - Removed the leaderboards\n"
+            "> Hug - Changed some mentions things\n"
+            "> Server Info - Added stage channels to the command\n"
+            "> Emoji Info - Revamped it to have a new look\n"
+            "> Emoji List - Fixed something\n"
+            "> Help - Completely new look\n"
+            "> Poll - Modified it so you can ping any role you want instead of only everyone\n"
+            "> Sound Effect - Added reply feature\n"
+            "\n"
+            "**Other:**\n"
+            "> Changed a bunch of emojis\n"
+            "> Grammar corrections\n"
+            "\n"
+            "If there is an issue with the bot, please contact @icky#2264, or do `-report <issue>` to report an issue. icky will get into the issue as soon as he can.\n"
+        )
 
 def setup(bot):
     bot.add_cog(General(bot))

@@ -2,10 +2,11 @@ import discord
 import os
 
 
+from discord.enums import Status
 from discord.ext import commands
 
 
-class Activity(commands.Cog):
+class Status(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot.loop.create_task(self.async_init())
@@ -17,4 +18,4 @@ class Activity(commands.Cog):
         await self.bot.change_presence(activity=activity)
 
 def setup(bot):
-    bot.add_cog(Activity(bot))
+    bot.add_cog(Status(bot))
