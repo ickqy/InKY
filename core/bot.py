@@ -2,10 +2,16 @@ import discord
 import logging
 import re
 import time
+import sqlite3
+import config
+
 
 from discord.ext import commands, tasks
 
-import config
+from databases import Database
+
+from cogs.utils import dbQuery
+from core.objects import Connection
 
 
 def get_cogs():
@@ -17,7 +23,9 @@ def get_cogs():
         "cogs.mods",
         "cogs.music",
         "cogs.starboard",
-        "cogs.activity",
+        "cogs.status",
+        "cogs.error_handler",
+        "cogs.time",
     ]
 
     return extensions
@@ -45,7 +53,7 @@ def _callable_prefix(bot, message):
         base.extend(bot.def_prefix)
     return base
 
-class kBot(commands.Bot):
+class InKY(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix=_callable_prefix,
@@ -62,6 +70,12 @@ class kBot(commands.Bot):
         
         # bot's default prefix
         self.def_prefix = ["-"]
+
+        # Uptime
+        self.start_time = time.time()
+
+        # Database
+        self.db = Database(config.sql, factory=Connection)
 
     async def on_ready(self):
         # load all listed extensions

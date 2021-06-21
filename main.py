@@ -40,7 +40,7 @@ def init_bot():
     loop = asyncio.get_event_loop()
     logger = logging.getLogger()
 
-    bot = _bot.kBot()
+    bot = _bot.InKY()
     bot.run()
 
 

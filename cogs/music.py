@@ -1,16 +1,21 @@
 import discord
+import os
 import asyncio
-import datetime as dt
 import random
 import re
-import typing as t
 import wavelink
+import config
+
+import typing as t
+import datetime as dt
 
 
+from discord.ext import commands
+from discord import user
 from discord import colour
 from discord.colour import Color
+
 from enum import Enum
-from discord.ext import commands
 from wavelink import player
 from wavelink.player import Track
 
@@ -169,11 +174,11 @@ class Player(wavelink.Player):
             self.queue.add(*tracks.tracks)
         elif len(tracks) == 1:
             self.queue.add(tracks[0])
-            await ctx.send(f"Added {tracks[0].title} to the queue.")
+            await ctx.reply(f"Added {tracks[0].title} to the queue.")
         else:
             if (track := await self.choose_track(ctx, tracks)) is not None:
                 self.queue.add(track)
-                await ctx.send(f"Added {track.title} to the queue.")
+                await ctx.reply(f"Added {track.title} to the queue.")
 
         if not self.is_playing and not self.queue.is_empty:
             await self.start_playback()
@@ -200,7 +205,7 @@ class Player(wavelink.Player):
         embed.set_author(name="Query Results")
         embed.set_footer(text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
 
-        msg = await ctx.send(embed=embed)
+        msg = await ctx.reply(embed=embed)
         for emoji in list(OPTIONS.keys())[:min(len(tracks), len(OPTIONS))]:
             await msg.add_reaction(emoji)
 
@@ -282,27 +287,30 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         elif isinstance(obj, discord.Guild):
             return self.wavelink.get_player(obj.id, cls=Player)
 
-    @commands.command(name="connect", aliases=["join"])
+    @commands.command(name="connect", aliases=["join", "hello"])
     async def connect_command(self, ctx, *, channel: t.Optional[discord.VoiceChannel]):
+        """`Connect the bot to your/a voice channel`"""
         player = self.get_player(ctx)
         channel = await player.connect(ctx, channel)
-        await ctx.send(f"Connected to {channel.name}.")
+        await ctx.reply(f"Connected to {channel.name}.")
 
     @connect_command.error
     async def connect_command_error(self, ctx, exc):
         if isinstance(exc, AlreadyConnectedToChannel):
-            await ctx.send("Already connected to a voice channel.")
+            await ctx.reply("Already connected to a voice channel.")
         elif isinstance(exc, NoVoiceChannel):
-            await ctx.send("No suitable voice channel was provided.")
+            await ctx.reply("No suitable voice channel was provided.")
 
-    @commands.command(name="disconnect", aliases=["leave"])
+    @commands.command(name="disconnect", aliases=["leave", "bye"])
     async def disconnect_command(self, ctx):
+        """`Disconnect the bot from the voice channel`"""
         player = self.get_player(ctx)
         await player.teardown()
         await ctx.send("Disconnected.")
 
     @commands.command(name="clear", aliases=["c"])
     async def clear_command(self, ctx):
+        """`Clear the queue`"""
         player = self.get_player(ctx)
         if player.queue.is_empty:
             raise QueueIsEmpty
@@ -310,17 +318,18 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         else:
             player.queue.empty()
             await player.set_pause(True)
-            await ctx.send("The queue has been cleared.")
+            await ctx.reply("The queue has been cleared.")
 
     @clear_command.error
     async def clear_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("No songs to clear as the queue is empty.")
+            await ctx.reply("No songs to clear as the queue is empty.")
         elif isinstance(exc, NoVoiceChannel):
-            await ctx.send("You are not in a voice channel, therefore there's no queue to clear.")
+            await ctx.reply("You are not in a voice channel, therefore there's no queue to clear.")
 
     @commands.command(name="nowplaying", aliases=["np"])
     async def nowplaying_command(self, ctx):
+        """`Shows what song is currentlly playing`"""
         player = self.get_player(ctx)
         if player.is_paused:
             raise PlayerIsAlreadyPaused
@@ -340,24 +349,25 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 + f"{round(player.queue.current_track.length/1000)//60:02}:{round(player.queue.current_track.length/1000)%60:02}",
                 inline=False
                 )
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed)
 
     @nowplaying_command.error
     async def nowplaying_command_error(self, ctx, exc):
         if isinstance(exc, PlayerIsAlreadyPaused):
-            await ctx.send("No songs are currently playing")
+            await ctx.reply("No songs are currently playing")
         elif isinstance(exc, QueueIsEmpty):
-            await ctx.send("There are no songs in the queue")
+            await ctx.reply("There are no songs in the queue")
 
     @nowplaying_command.error
     async def now_playing_error(self, ctx, exc):
         if isinstance(exc, PlayerIsAlreadyPaused):
-            await ctx.send("Now songs are currentlly playing")
+            await ctx.reply("No songs are currentlly playing")
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("There are no songs in the queue.")
+            await ctx.reply("There are no songs in the queue.")
 
     @commands.command(name="play", aliases=["p"])
     async def play_command(self, ctx, *, query: t.Optional[str]):
+        """`Add a song to the queue or resume the song`"""
         player = self.get_player(ctx)
 
         if not player.is_connected:
@@ -368,7 +378,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 raise QueueIsEmpty
 
             await player.set_pause(False)
-            await ctx.send("Playback resumed.")
+            await ctx.reply("Playback resumed.")
 
         else:
             query = query.strip("<>")
@@ -380,48 +390,51 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @play_command.error
     async def play_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("No songs to play as the queue is empty.")
+            await ctx.reply("No songs to play as the queue is empty.")
         elif isinstance(exc, NoVoiceChannel):
-            await ctx.send("No suitable voice channel was provided.")
+            await ctx.reply("No suitable voice channel was provided.")
 
     @commands.command(name="pause")
     async def pause_command(self, ctx):
+        """`Pause the song`"""
         player = self.get_player(ctx)
 
         if player.is_paused:
             raise PlayerIsAlreadyPaused
 
         await player.set_pause(True)
-        await ctx.send("Playback paused.")
+        await ctx.reply("Playback paused.")
 
     @pause_command.error
     async def pause_command_error(self, ctx, exc):
         if isinstance(exc, PlayerIsAlreadyPaused):
-            await ctx.send("Already paused.")
+            await ctx.reply("Already paused.")
 
     @commands.command(name="stop")
     async def stop_command(self, ctx):
+        """`Stop the queue from playing`"""
         player = self.get_player(ctx)
         player.queue.empty()
         await player.stop()
-        await ctx.send("Playback stopped.")
+        await ctx.reply("Playback stopped.")
 
     @commands.command(name="next", aliases=["skip"])
     async def next_command(self, ctx):
+        """`Play the next song in queue`"""
         player = self.get_player(ctx)
 
         if not player.queue.upcoming:
             raise NoMoreTracks
 
         await player.stop()
-        await ctx.send("Playing next track in queue.")
+        await ctx.reply("Playing next track in queue.")
 
     @next_command.error
     async def next_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("This could not be executed as the queue is currently empty.")
+            await ctx.reply("This could not be executed as the queue is currently empty.")
         elif isinstance(exc, NoMoreTracks):
-            await ctx.send("There are no more tracks in the queue.")
+            await ctx.reply("There are no more tracks in the queue.")
 
     @commands.command(name="previous")
     async def previous_command(self, ctx):
@@ -433,26 +446,26 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         player.queue.position -= 2
         await player.stop()
-        await ctx.send("Playing previous track in queue.")
+        await ctx.reply("Playing previous track in queue.")
 
     @previous_command.error
     async def previous_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("This could not be executed as the queue is currently empty.")
+            await ctx.reply("This could not be executed as the queue is currently empty.")
         elif isinstance(exc, NoPreviousTracks):
-            await ctx.send("There are no previous tracks in the queue.")
+            await ctx.reply("There are no previous tracks in the queue.")
 
     @commands.command(name="shuffle")
     async def shuffle_command(self, ctx):
         """`Shuffle the songs in the queue`"""
         player = self.get_player(ctx)
         player.queue.shuffle()
-        await ctx.send("Queue shuffled.")
+        await ctx.reply("Queue shuffled.")
 
     @shuffle_command.error
     async def shuffle_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("The queue could not be shuffled as it is currently empty.")
+            await ctx.reply("The queue could not be shuffled as it is currently empty.")
 
     @commands.command(name="repeat")
     async def repeat_command(self, ctx, mode: str):
@@ -462,7 +475,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         player = self.get_player(ctx)
         player.queue.set_repeat_mode(mode)
-        await ctx.send(f"The repeat mode has been set to {mode}.")
+        await ctx.reply(f"The repeat mode has been set to {mode}.")
 
     @commands.command(name="queue", aliases=["q"])
     async def queue_command(self, ctx, show: t.Optional[int] = 10):
@@ -492,26 +505,88 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 inline=False
             )
 
-        msg = await ctx.send(embed=embed)
+        msg = await ctx.reply(embed=embed)
 
     @queue_command.error
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("The queue is currently empty.")
+            await ctx.reply("The queue is currently empty.")
 
     @commands.command(name = "soundeffect", aliases = ['se'])
-    async def soundeffect_command(self, ctx, arg="amongus_report"):
+    async def soundeffect_command(self, ctx, arg=None):
+        """`Play a sound effect`"""
         player = self.get_player(ctx)
-        if not ctx.author.voice:
-            await ctx.send("You are not in a voice channel, you must be in a voice channel to run this command.")
+        embed_reaction = ["🔁"]
+
+        def check_reaction(reaction, user):
+            if user == ctx.author and str(reaction.emoji) in embed_reaction:
+                return str(reaction.emoji)
+            else:
+                return False
 
         if not player.is_connected:
             await player.connect(ctx)
 
         if player.is_connected:
-            source = await self.wavelink.get_tracks(f'/Users/ferny/Desktop/openjdk-16_windows-x64_bin/jdk-16/bin/sounds/{arg}.mp4')
+            if arg is None:
+                await ctx.reply("No sound effect was provided. To see the list of sound effects, do `-lse` to see the list of sound effects.")
+                return
+            
+            source = await self.wavelink.get_tracks(config.path+f"{arg}.mp4")
+
+            if source is None:
+                await ctx.reply("You did not provide a valid sound effect, do `-lse` to view all the available sound effects.")
+                return
+
             await player.play(source[0])
-            print(source[0])
+
+            msg = await ctx.reply("Dispatching sound...")
+            for emoji in embed_reaction:
+                await msg.add_reaction(emoji)
+            while True:
+                try:
+                    reaction, user = await self.bot.wait_for(
+                        "reaction_add", check=check_reaction, timeout=60.0
+                    )
+                except asyncio.TimeoutError:
+                    await msg.clear_reactions()
+                    break
+                else:
+                    emoji = check_reaction(reaction, user)
+                    try:
+                        await msg.remove_reaction(reaction.emoji, user)
+                    except discord.Forbidden:
+                        pass
+                    if emoji == "🔁":
+                        await player.play(source[0])
+
+    @soundeffect_command.error
+    async def soundeffect_command_error(self, ctx, exc):
+        if isinstance(exc, NoVoiceChannel):
+            await ctx.reply("No suitable voice channel was provided.")
+
+    @commands.command(name = "selist", aliases = ["lse"])
+    async def selist_command(self, ctx):
+        """`Shows a list of sound effects you can play`"""
+        path = config.path
+
+        files = os.listdir(path)
+
+        sounds = []
+        for f in files:
+            sounds.append(f)
+        embed=discord.Embed(
+            title="List of Sound Effects", 
+            description="**" + "\n".join([sound.rstrip(".mp4") for sound in files]) + "**",
+            color=0x000000,
+            )
+        embed.add_field(
+            name="-se <sound effect name> to play sound effect", 
+            value="This is the list of sound effects you can use, remember to type it exactly like it's written.", 
+            inline=False
+            )
+        await ctx.reply(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Music(bot))
