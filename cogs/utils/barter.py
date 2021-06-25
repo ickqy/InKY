@@ -46,6 +46,7 @@ class Piglin:
     def __str__(self):
         return ", ".join(["{}: {}".format(str(item), item.quantity) for item in self.items])
 
+
 class BarterItem:
 
     # Item Name

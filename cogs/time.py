@@ -179,7 +179,7 @@ class Timer(commands.Cog, CogMixin):
         if not when:
             return await ctx.try_reply("Invalid time.")
 
-        timer = await self.createTimer(
+        await self.createTimer(
             when,
             "reminder",
             ctx.channel.id,
@@ -206,7 +206,7 @@ class Timer(commands.Cog, CogMixin):
         if not when:
             return await ctx.try_reply("Invalid time.")
 
-        timer = await self.createTimer(
+        await self.createTimer(
             when,
             "reminder",
             ctx.channel.id,
@@ -257,6 +257,7 @@ class Timer(commands.Cog, CogMixin):
         e = discord.Embed(
             description="{} [`[?]`]({})".format(message, msgUrl),
         )
+
         async def doSend():
             await channel.send("<@{}>".format(authorId), embed=e)
 
@@ -265,6 +266,7 @@ class Timer(commands.Cog, CogMixin):
                 self.bot.loop.create_task(doSend())
         else:
             await doSend()
+
 
 def setup(bot):
     bot.add_cog(Timer(bot))

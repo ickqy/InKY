@@ -1,10 +1,7 @@
-  
+
 import asyncio
 import discord
-import json
 import prettify_exceptions
-import sys
-import traceback
 
 
 from discord.ext import commands
@@ -40,12 +37,13 @@ class ErrorHandler(commands.Cog):
             _traceback = ''.join(prettify_exceptions.DefaultFormatter().format_exception(type(error), error, error.__traceback__))
             self.bot.logger.error(f"Something went wrong! error: {error}\n{_traceback}")
 
-            error=discord.Embed(
-                title="Something went wrong!", 
-                description=f"Here is the error\n```{error}```", 
+            error = discord.Embed(
+                title="Something went wrong!",
+                description=f"Here is the error\n```{error}```",
                 color=0x2E3137
             )
             await ctx.reply(embed=error)
+
 
 def setup(bot):
     bot.add_cog(ErrorHandler(bot))

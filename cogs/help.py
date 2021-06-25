@@ -1,23 +1,16 @@
-import asyncio
 import discord
-import json
 import logging
-import re
-import core.bot as bot
 
 
 from discord.ext import commands
 from discord.ext.commands.core import Group
-
-from core.bot import InKY
-from typing import Optional
 
 
 class CustomHelp(commands.HelpCommand):
     COLOUR = discord.Colour(0x000000)
 
     def get_desc(self):
-        desc = f"Bot prefix is `-`"
+        desc = "Bot prefix is `-`"
         return desc
 
     def get_ending_note(self):
@@ -163,6 +156,7 @@ class HelpCmd(commands.Cog, command_attrs=dict(hidden=True)):
 
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
+
 
 def setup(bot):
     bot.add_cog(HelpCmd(bot))

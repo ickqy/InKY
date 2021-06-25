@@ -1,24 +1,14 @@
 import discord
-import random
 import time
-import re
-import datetime
 import textwrap
 import asyncio
 import unicodedata
-from discord import channel
 import discord.utils
 
-import cogs.utils.checks as checks
 
-
-from discord.ext.commands.core import check, command
-from discord import message
-from discord import colour
-from discord.ext import commands   
+from discord.ext import commands
 
 from pytz import timezone
-from random import randint
 from typing import Union
 
 
@@ -37,16 +27,16 @@ class General(commands.Cog):
         typing = (ping_end - ping_start) * 1000
         return await msg.edit(content=f"Pong! `{websocket}` ms | `{round(typing, 2)}` ms")
 
-    @commands.command(aliases=["bi", "about", "info",])
+    @commands.command(aliases=["bi", "about", "info"])
     async def botinfo(self, ctx):
         """`Shows the bot's information.`"""
-        bot_ver = "v4.0"
+        bot_ver = "v4.0.1"
         embed = discord.Embed(
             title="About InKY",
             colour=discord.Colour(0x000000),
             timestamp=ctx.message.created_at,
         )
-        embed.set_thumbnail(url = self.bot.user.avatar_url)
+        embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.add_field(name="InKY Creator", value="<@564610598248120320>")
         embed.add_field(
             name="discord.py",
@@ -171,7 +161,7 @@ class General(commands.Cog):
                 inline=False,
             )
         else:
-            embed.add_field(name=f"Roles", value=f"{len(roles)}", inline=False)
+            embed.add_field(name="Roles", value=f"{len(roles)}", inline=False)
         embed.set_footer(
             text=f"Requested by {ctx.message.author.name}#{ctx.message.author.discriminator}"
         )
@@ -217,7 +207,7 @@ class General(commands.Cog):
             embed.add_field(
                 name=f"Boosters ({len(boosters)})",
                 value=",\n".join(
-                    ", ".join(boosters[i : i + width])
+                    ", ".join(boosters[i:i + width])
                     for i in range(0, len(boosters), width)
                 )
                 if boosters
@@ -228,11 +218,11 @@ class General(commands.Cog):
         if len(", ".join(roles)) <= 1024:
             embed.add_field(name=f"Roles ({len(roles)})", value=", ".join(roles))
         else:
-            embed.add_field(name=f"Roles", value=f"{len(roles)}")
+            embed.add_field(name="Roles", value=f"{len(roles)}")
         embed.set_footer(text=f"ID: {ctx.guild.id}")
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases = ["ut"])
+    @commands.command(aliases=["ut"])
     async def uptime(self, ctx):
         """`Check the bot's uptime`"""
         seconds = time.time() - self.bot.start_time
@@ -349,13 +339,23 @@ class General(commands.Cog):
         await channel.send(f"<@!564610598248120320>, {ctx.author.mention} reported:\n{issue}")
 
     @commands.command(aliases=["cl"])
-    async def changelog(self,ctx):
+    async def changelog(self, ctx):
         await ctx.reply(
-            "`Change Log`\n"
+            "**InKY Change Log**\n"
             "\n"
-            "**~~kBot~~ InKY v4.0**\n"
+            "InKY v4.0.1"
+            "This is a minor update, just cleaned up a bunch of things and fixed some stuff up"
             "\n"
-            "~~kBot~~ InKY v4.0 is out! This is the biggest update InKY has ever gotten. Since the very beginning, the goal of this bot is for users to be able to enjoy fun bot commands without the limitations of a cooldown. And in the past few months, the bot has gotten more fun commands and it has also gotten general commands for ease of use in the server. Here are the changes the bot got.\n"
+            "**Modified Commands:**"
+            "> Snipe Command - Modified the timer a bit"
+            "> Hug Command - Removed reply from the second embed"
+            "\n"
+            "**Other:**"
+            "> Deleted a bunch of innecessary lines and fixed some other stuff."
+            "\n"
+            "**Inky v4.0**"
+            "~~kBot~~ InKY v4.0 is out! This is the biggest update InKY has ever gotten. Since the very beginning, the goal of this bot is for users to be able to enjoy fun bot commands without the limitations of a cooldown."
+            "And in the past few months, the bot has gotten more fun commands and it has also gotten general commands for ease of use in the server. Here are the changes the bot got.\n"
             "\n"
             "**Bot Appearance:**\n"
             "> Change the name back to InKY due to feedback\n"
@@ -392,6 +392,7 @@ class General(commands.Cog):
             "\n"
             "If there is an issue with the bot, please contact @icky#2264, or do `-report <issue>` to report an issue. icky will get into the issue as soon as he can.\n"
         )
+
 
 def setup(bot):
     bot.add_cog(General(bot))

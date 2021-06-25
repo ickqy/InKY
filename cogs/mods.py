@@ -1,6 +1,5 @@
 import discord
 import asyncio
-import textwrap
 import time
 import typing
 
@@ -8,8 +7,6 @@ import cogs.utils.checks as checks
 
 from discord.errors import Forbidden, NotFound
 from discord.ext import commands
-
-from random import choice, randint, random
 
 from core.bot import get_cogs
 from .utils.formatting import realtime
@@ -43,7 +40,7 @@ class Moderation(commands.Cog):
 
         for member in members:
             if self.bot.user == member:  # Just why would you want to mute him?
-                await ctx.reply(f"You're not allowed to kick InKY!")
+                await ctx.reply("You're not allowed to kick InKY!")
             else:
                 try:
                     await member.send(
@@ -92,7 +89,7 @@ class Moderation(commands.Cog):
 
         for member in members:
             if self.bot.user == member:  # Just why would you want to mute him?
-                await ctx.reply(f"You're not allowed to ban InKY!")
+                await ctx.reply("You're not allowed to ban InKY!")
             else:
                 try:
                     await member.send(
@@ -233,7 +230,7 @@ class Moderation(commands.Cog):
             "\N{REGIONAL INDICATOR SYMBOL LETTER B}",
             "\N{REGIONAL INDICATOR SYMBOL LETTER C}",
             "\N{REGIONAL INDICATOR SYMBOL LETTER D}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER E}", 
+            "\N{REGIONAL INDICATOR SYMBOL LETTER E}",
             "\N{REGIONAL INDICATOR SYMBOL LETTER F}",
             "\N{REGIONAL INDICATOR SYMBOL LETTER G}",
             "\N{REGIONAL INDICATOR SYMBOL LETTER H}",
@@ -260,27 +257,24 @@ class Moderation(commands.Cog):
         if role is None:
             await ctx.reply("Please choose what role you want to ping. `-poll <everyone/here/id of role> <rest of poll>`")
             return
-        
+
         else:
             await discord.Message.delete(ctx.message)
             options = list(options)
             for i in range(len(options)):
                 options[i] = f"{emojiLetters[i]}  {options[i]}"
-            embed = discord.Embed(title=title,
-            description='\n'.join(options),
-            color=0x000000)
-            try:    
-                message = await ctx.send(
-                content = role.mention,
-                embed=embed
-                )
-            except:
-                message = await ctx.send(
-                content = "@"+role,
-                embed=embed
-                )
+            embed = discord.Embed(
+                title=title,
+                description='\n'.join(options),
+                color=0x000000
+            )
+            try:
+                message = await ctx.send(content=role.mention, embed=embed)
+            except AttributeError:
+                message = await ctx.send(content="@"+role, embed=embed)
             for i in range(len(options)):
                 await message.add_reaction(emojiLetters[i])
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))

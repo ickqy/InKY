@@ -13,7 +13,7 @@ from typing import Union
 class Starred:
     __slots__ = ("id", "bot_message_id")
 
-    def __init__(self, message_id: int, bot_message_id: int=None):
+    def __init__(self, message_id: int, bot_message_id: int = None):
         self.id = message_id
         # Returns none for Legacy support
         self.bot_message_id = bot_message_id
@@ -76,7 +76,7 @@ class Stars(commands.Cog):
         except Exception as err:
             print(err)
             return None
-    
+
     def get_raw_starboard_config(self):
         try:
             with open("starboard_config.json", "r") as conf:
@@ -110,12 +110,12 @@ class Stars(commands.Cog):
         except KeyError:
             sbConfig[str(ctx.guild.id)] = {}
             guildConfig = sbConfig[str(ctx.guild.id)]
-        
+
         try:
             amount = int(channel) if isinstance(channel, str) else amount
         except ValueError:
             pass
-        
+
         guildConfig["channel"] = channel.id if isinstance(channel, discord.TextChannel) else 0
         guildConfig["amount"] = amount
         if "pins" not in guildConfig:
@@ -145,7 +145,7 @@ class Stars(commands.Cog):
         starboard = self.get_guild_starboard_config(payload.guild_id)
         if not starboard:
             return
-        
+
         if not starboard.channel:
             return
 

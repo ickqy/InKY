@@ -17,16 +17,6 @@ class Context(commands.Context):
     def db(self):
         return self.bot.db
 
-    async def try_reply(self, content="", *, mention_author=False, **kwargs):
-        """Try reply, if failed do send instead"""
-        try:
-            return await self.reply(content, mention_author=mention_author, **kwargs)
-        except:
-            if mention_author and content:
-                content = f"{self.author.mention}\n{content}"
-            return await self.send(content, **kwargs)
-
-
     async def safe_send(self, content, *, escape_mentions=True, **kwargs):
         if escape_mentions:
             content = discord.utils.escape_mentions(content)

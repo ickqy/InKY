@@ -10,7 +10,6 @@ from humanize import naturaldelta
 from core.context import Context
 
 
-
 TIME_REGEX = re.compile(
     r"""
         (?:(?P<years>([\d]*))(?:\ )?(?:years?|y))?
@@ -36,7 +35,7 @@ class TimeAndArgument(commands.Converter):
         if match:
             kwargs = {k: int(v) for k, v in match.groupdict().items() if v}
             if kwargs:
-                self.arg = argument[match.end() :].strip()
+                self.arg = argument[match.end():].strip()
                 now = dt.datetime.utcnow()
                 self.when = now + relativedelta(**kwargs)
                 self.delta = naturaldelta(self.when, when=now)

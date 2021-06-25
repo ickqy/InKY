@@ -2,15 +2,11 @@ import discord
 import logging
 import re
 import time
-import sqlite3
 import config
 
-
-from discord.ext import commands, tasks
-
+from discord.ext import commands
 from databases import Database
 
-from cogs.utils import dbQuery
 from core.objects import Connection
 
 
@@ -53,6 +49,7 @@ def _callable_prefix(bot, message):
         base.extend(bot.def_prefix)
     return base
 
+
 class InKY(commands.Bot):
     def __init__(self):
         super().__init__(
@@ -62,12 +59,12 @@ class InKY(commands.Bot):
         )
         # Get Bot Master's ID
         self.master = [564610598248120320]
-        
+
         # make cogs case insensitive
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         self.logger = logging.getLogger("discord")
-        
+
         # bot's default prefix
         self.def_prefix = ["-"]
 

@@ -11,13 +11,8 @@ import datetime as dt
 
 
 from discord.ext import commands
-from discord import user
-from discord import colour
-from discord.colour import Color
 
 from enum import Enum
-from wavelink import player
-from wavelink.player import Track
 
 
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -314,7 +309,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         player = self.get_player(ctx)
         if player.queue.is_empty:
             raise QueueIsEmpty
-        
+
         else:
             player.queue.empty()
             await player.set_pause(True)
@@ -338,13 +333,13 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             raise QueueIsEmpty
 
         else:
-            embed=discord.Embed(
-                title="Now Playing", 
+            embed = discord.Embed(
+                title="Now Playing",
                 description=f"**{player.queue.current_track}**",
                 colour=discord.Colour(0x000000),
                 )
             embed.add_field(
-                name="Time Stamp", 
+                name="Time Stamp",
                 value=f"{round(player.position/1000)//60:02}:{round(player.position/1000)%60:02}/"
                 + f"{round(player.queue.current_track.length/1000)//60:02}:{round(player.queue.current_track.length/1000)%60:02}",
                 inline=False
@@ -505,14 +500,14 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 inline=False
             )
 
-        msg = await ctx.reply(embed=embed)
+        await ctx.reply(embed=embed)
 
     @queue_command.error
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
             await ctx.reply("The queue is currently empty.")
 
-    @commands.command(name = "soundeffect", aliases = ['se'])
+    @commands.command(name="soundeffect", aliases=['se'])
     async def soundeffect_command(self, ctx, arg=None):
         """`Play a sound effect`"""
         player = self.get_player(ctx)
@@ -531,7 +526,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             if arg is None:
                 await ctx.reply("No sound effect was provided. To see the list of sound effects, do `-lse` to see the list of sound effects.")
                 return
-            
+
             source = await self.wavelink.get_tracks(config.path+f"{arg}.mp4")
 
             if source is None:
@@ -565,7 +560,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         if isinstance(exc, NoVoiceChannel):
             await ctx.reply("No suitable voice channel was provided.")
 
-    @commands.command(name = "selist", aliases = ["lse"])
+    @commands.command(name="selist", aliases=["lse"])
     async def selist_command(self, ctx):
         """`Shows a list of sound effects you can play`"""
         path = config.path
@@ -575,14 +570,14 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         sounds = []
         for f in files:
             sounds.append(f)
-        embed=discord.Embed(
-            title="List of Sound Effects", 
+        embed = discord.Embed(
+            title="List of Sound Effects",
             description="**" + "\n".join([sound.rstrip(".mp4") for sound in files]) + "**",
             color=0x000000,
             )
         embed.add_field(
-            name="-se <sound effect name> to play sound effect", 
-            value="This is the list of sound effects you can use, remember to type it exactly like it's written.", 
+            name="-se <sound effect name> to play sound effect",
+            value="This is the list of sound effects you can use, remember to type it exactly like it's written.",
             inline=False
             )
         await ctx.reply(embed=embed)

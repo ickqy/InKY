@@ -1,42 +1,35 @@
 import discord
+
 import asyncio
-import json
 import requests
-import datetime
 
 import cogs.utils.checks as checks
 
 
 from discord.ext import commands
-from discord.errors import Forbidden
-from discord.ext.commands.core import check, command
-from discord.ext import tasks
-from discord import embeds
-from discord import channel
-from discord.mentions import AllowedMentions
 
 from random import choice, randint, random
 
-from .utils import yomama
-from .utils import roasts
-from .utils import compliment
+from .utils.yomama import getyomum
+from .utils.roasts import getroast
+from .utils.compliment import getcompliment
 from .utils.barter import Piglin
 
 
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.snipe_message = {}
+        self._task = {}
+        self.deletedMsg = {}
 
-    @commands.Cog.listener()
     async def on_message_delete(self, message):
-        self.snipe_message[message.channel.id] = message
-        
-        try:
-            await asyncio.sleep(60)
-            del self.snipe_message[message.channel.id]
-        except:
-            pass
+        self.deletedMsg[message.channel.id] = message
+
+        async def deleteTask(channelId):
+            del self.deleteMsg[channelId]
+        if self._task.get(message.channel.id, None):
+            self._task[message.channel.id].cancel()
+        self._task[message.channel.id] = self.bot.loop.create_task(deleteTask(message.channel.id))
 
     @commands.command(aliases=["fs"])
     async def findseed(self, ctx):
@@ -52,7 +45,7 @@ class Fun(commands.Cog):
         await ctx.reply(
             f"{(ctx.message.author.mention)} -> your seed is a {total_eyes} eye"
         )
-        
+
     @commands.command(aliases=["vfindseed", "visualfindseed", "vfs"])
     async def findseedbutvisual(self, ctx):
         """`Test your luck in Minecraft but visual.`"""
@@ -126,7 +119,7 @@ class Fun(commands.Cog):
             icon_url=ctx.message.author.avatar_url,
         )
         await ctx.reply(embed=e)
-        
+
     @commands.command(aliases=["vfindseedbutpipega", "visualfindseedbutpipega", "vfsbp"])
     async def findseedbutvisualbutpipega(self, ctx):
         """`Test your luck in Minecraft but visual, and pipega?.`"""
@@ -390,24 +383,24 @@ class Fun(commands.Cog):
     async def joke(self, ctx):
         """`Ask the bot a joke and he will tell you a joke that will defenetly make you laugh no cap`"""
         data = requests.get('https://official-joke-api.appspot.com/jokes/random').json()
-        embed = discord.Embed(title = data['setup'], description = data['punchline'], color = 0xf4565a)
+        embed = discord.Embed(title=data['setup'], description=data['punchline'], color=0xf4565a)
         await ctx.reply(embed=embed)
 
     @commands.command()
     async def joemama(self, ctx):
         """`Ask the bot a Yo Mama Joke, he will diliver`"""
-        embed = discord.Embed(title = f'{yomama.getyomum()}', color = 0xf4565a)
+        embed = discord.Embed(title=f'{getyomum()}', color=0xf4565a)
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases = ['saysomethingniceto'])
+    @commands.command(aliases=['saysomethingniceto'])
     async def compliment(self, ctx, member: discord.Member = None):
         """`Compliment Someone :D`"""
-        
+
         if member is None:
             member = choice([member for member in ctx.guild.members if not member.bot])
             e = discord.Embed(
                 colour=discord.Color(0x2EDC8A),
-                title=f'{compliment.getcompliment()}',
+                title=f'{getcompliment()}',
             )
 
             await ctx.reply(content=f"{member.mention}", embed=e)
@@ -419,13 +412,13 @@ class Fun(commands.Cog):
             )
             e = discord.Embed(
                 colour=discord.Color(0x2EDC8A),
-                title=f'{compliment.getcompliment()}',
+                title=f'{getcompliment()}',
             )
 
             await ctx.reply(content=f"{member.mention}", allowed_mentions=NO, embed=e)
             return
 
-    @commands.command(aliases = ['guess', 'gtn', 'guessnum'])
+    @commands.command(aliases=['guess', 'gtn', 'guessnum'])
     async def guessthenumber(self, ctx):
         """`Guess the number, why did you even do help guess if its self explanitory`"""
         number = randint(1, 100)
@@ -435,7 +428,7 @@ class Fun(commands.Cog):
                 await ctx.reply("The game is over and you lost.")
                 return
             await ctx.reply(f'Guess the number! Pick from 1 to 100 and get some hints! This is attempt #{i}.')
-            response = await self.bot.wait_for('message', check = lambda message: message.author == ctx.author)
+            response = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
             try:
                 guess = int(response.content)
             except ValueError:
@@ -465,33 +458,35 @@ class Fun(commands.Cog):
     @commands.command(aliases=["8ball"])
     async def ballofwisdom(self, ctx, *, question):
         """`Ask the Magic 8Ball your question,a nd he will answer correctly no cap`"""
-        responses = ["It is certain.",
-        "It is decidedly so.",
-        "Without a doubt.",
-        "Yes - definitely.",
-        "You may rely on it.",
-        "As I see it, yes.",
-        "Most likely.",
-        "Outlook good.",
-        "Yes.",
-        "Signs point to yes.",
-        "Reply hazy, try again.",
-        "Ask again later.",
-        "Better not tell you now.",
-        "Cannot predict now.",
-        "Concentrate and ask again.",
-        "Don't count on it.",
-        "My reply is no.",
-        "My sources say no.",
-        "Outlook not so good.",
-        "Very doubtful."]
-        
+        responses = [
+            "It is certain.",
+            "It is decidedly so.",
+            "Without a doubt.",
+            "Yes - definitely.",
+            "You may rely on it.",
+            "As I see it, yes.",
+            "Most likely.",
+            "Outlook good.",
+            "Yes.",
+            "Signs point to yes.",
+            "Reply hazy, try again.",
+            "Ask again later.",
+            "Better not tell you now.",
+            "Cannot predict now.",
+            "Concentrate and ask again.",
+            "Don't count on it.",
+            "My reply is no.",
+            "My sources say no.",
+            "Outlook not so good.",
+            "Very doubtful."
+        ]
+
         e = discord.Embed(
-        title=f"🎱  {question}?",
-        colour=discord.Colour(0x603593),
-        description=choice(responses),
-        )
-        
+            title=f"🎱  {question}?",
+            colour=discord.Colour(0x603593),
+            description=choice(responses),
+            )
+
         await ctx.reply(embed=e)
 
     @commands.command(aliases=["isimposter"], usage="[impostor count] [player count]")
@@ -507,7 +502,7 @@ class Fun(commands.Cog):
             await ctx.reply(f"{ctx.author.mention}, you're an impostor!")
 
     @commands.command()
-    async def roast (self, ctx, member: discord.Member = None):
+    async def roast(self, ctx, member: discord.Member = None):
         """`Roast someone >:)`"""
 
         no_roast = {
@@ -518,7 +513,7 @@ class Fun(commands.Cog):
             member = choice([member for member in ctx.guild.members if not member.bot])
             e = discord.Embed(
                 colour=discord.Color(0xE41919),
-                title=f'{roasts.getroast()}',
+                title=f'{getroast()}',
             )
 
             await ctx.reply(content=f"{member.mention}", embed=e)
@@ -532,14 +527,14 @@ class Fun(commands.Cog):
 
             await ctx.reply(embed=a)
             return
-        
+
         else:
             NO = discord.AllowedMentions(
                 users=False,
             )
             e = discord.Embed(
                 colour=discord.Color(0xE41919),
-                title=f'{roasts.getroast()}',
+                title=f'{getroast()}',
             )
 
             await ctx.reply(content=f"{member.mention}", allowed_mentions=NO, embed=e)
@@ -588,10 +583,9 @@ class Fun(commands.Cog):
                 f"{ctx.author.mention} -> you owe ${taxmona} in taxes - {moreTaxesMsg[randint(0, len(moreTaxesMsg) - 1)]}"
             )
 
-    @commands.group(aliases = ['bb'], example=["group"], invoke_without_command=True)
+    @commands.group(aliases=['bb'], example=["group"], invoke_without_command=True)
     async def blackboxgame(self, ctx, arg=None):
         """`A little game I created`"""
-        
         emojis = {
             "{bad}": "<:cross:854498023061061633>",
             "{good}": "<:check:854498005221769228>"
@@ -612,30 +606,30 @@ class Fun(commands.Cog):
             output = output.replace(e, emojis[e])
 
         e = discord.Embed(
-        title="The Black Box Game!",
-        description=f"{output}",
-        color=discord.Colour(0xE41919),
-        )
+            title="The Black Box Game!",
+            description=f"{output}",
+            color=discord.Colour(0xE41919),
+            )
         e.set_footer(
-            text=f"Do -bb htp to learn how to play the game!"
+            text="Do -bb htp to learn how to play the game!"
         )
-            
+
         await ctx.reply(embed=e)
-        
+
     @blackboxgame.command(name="htp")
     async def htp(self, ctx):
         htp = discord.Embed(
-        colour=discord.Color(0xE41919),
-        title="**How to Play The Black Box**",
-        description="In this game, you are going to press the black boxes, you are going to try and get as many <:check:854498005221769228> as you can.\n"
-        + "If you get a <:cross:854498023061061633>, you lose.\n"
-        + "Every box has a 15% chance of being an <:cross:854498023061061633>\n"
-        + f"GL! If you want to play do `-bb` to start playing",
+            colour=discord.Color(0xE41919),
+            title="**How to Play The Black Box**",
+            description="In this game, you are going to press the black boxes, you are going to try and get as many <:check:854498005221769228> as you can.\n"
+            + "If you get a <:cross:854498023061061633>, you lose.\n"
+            + "Every box has a 15% chance of being an <:cross:854498023061061633>\n"
+            + "GL! If you want to play do `-bb` to start playing",
         )
         await ctx.reply(embed=htp)
 
     @commands.command()
-    async def findseeds(self, ctx, attempts: int=100):
+    async def findseeds(self, ctx, attempts: int = 100):
         """`Findseed, but you can do multiple in one`"""
         if attempts > 100000:
             attempts = 100000
@@ -682,17 +676,12 @@ class Fun(commands.Cog):
 
         def check(reaction, reactor):
             # return true or false, if its true the action continue
-            return (reactor == member
-                and str(reaction.emoji) == "<:hug:855154433864630272>"
-            )
+            return (reactor == member and str(reaction.emoji) == "<:hug:855154433864630272>")
 
         try:
             # waiting for "true"
-            reaction, reactor = await self.bot.wait_for(
-                "reaction_add", timeout=120.0, check=check
-            )
+            reaction, reactor = await self.bot.wait_for("reaction_add", timeout=120.0, check=check)
         except asyncio.TimeoutError:
-            # too late
             e.set_footer(
                 text="Offer has been declined.", icon_url=ctx.author.avatar_url
             )
@@ -711,18 +700,18 @@ class Fun(commands.Cog):
             e.set_image(
                 url="https://cdn.discordapp.com/attachments/745481731582197780/845473845598224384/hugging.png"
             )
-            await ctx.reply(content=f"{member.mention} {ctx.author.mention}", embed=e)
+            await ctx.send(content=f"{member.mention} {ctx.author.mention}", embed=e)
 
     @commands.command()
     async def hack(self, ctx, member: discord.Member = None):
         """`Hack someone >:D`"""
-        
+
         if member is None:
             await ctx.reply("Give me a Member to hack")
             return
-            
+
         hack = await ctx.reply(
-            f"<a:loading:854498073416695849> | Booting up Hacking Program..."
+            "<a:loading:854498073416695849> | Booting up Hacking Program..."
         )
         await asyncio.sleep(3)
         await hack.edit(
@@ -797,7 +786,7 @@ class Fun(commands.Cog):
                 if message.author == member and message.attachments:
                     messages += [message]
                     url += [att.url for att in message.attachments]
-        
+
         if not url:
             url = []
             url = [
@@ -812,7 +801,7 @@ class Fun(commands.Cog):
                 "https://cdn.discordapp.com/attachments/745481731582197780/855624056157241374/hack9.jpeg",
                 "https://cdn.discordapp.com/attachments/745481731582197780/855624083685376010/hack10.jpeg",
             ]
-            
+
         embed = discord.Embed(
             title=""
         )
@@ -843,19 +832,19 @@ class Fun(commands.Cog):
     @commands.command()
     async def snipe(self, ctx):
         """`Snipe a message`"""
-        channel = ctx.channel 
+        channel = ctx.channel
         try:
             snipeEmbed = discord.Embed(
                 title="",
-                description = self.snipe_message[channel.id].content,
+                description=self.snipe_message[channel.id].content,
                 color=discord.Colour(0x000000)
                 )
             snipeEmbed.set_author(
                 name=f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
                 icon_url=ctx.message.author.avatar_url,
             )
-            await ctx.reply(embed = snipeEmbed)
-        except:
+            await ctx.reply(embed=snipeEmbed)
+        except AttributeError:
             await ctx.reply("There is nothing to snipe!")
 
     @commands.command()
@@ -863,9 +852,9 @@ class Fun(commands.Cog):
         """`Ask the bot for an inspirational quote`"""
         data = requests.get('https://api.quotable.io/random').json()
         embed = discord.Embed(
-            title = data['content'], 
-            description = f"- {data['author']}", 
-            color = 0x4EB9FE
+            title=data['content'],
+            description=f"- {data['author']}",
+            color=0x4EB9FE
             )
         await ctx.reply(embed=embed)
 
@@ -875,6 +864,7 @@ class Fun(commands.Cog):
         """`Tell the bot what to say!`"""
         await discord.Message.delete(ctx.message)
         await ctx.send(f'{phrase}')
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))

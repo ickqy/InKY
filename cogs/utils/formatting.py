@@ -1,5 +1,3 @@
-import datetime
-
 def realtime(time):  # turns XXX.xxx into h m s ms
     ms = int(time * 1000)
     s, ms = divmod(ms, 1000)
@@ -19,6 +17,7 @@ def realtime(time):  # turns XXX.xxx into h m s ms
         if not e:
             f.remove(e)  # remove item if empty
     return " ".join(f)  # src formatting 0
+
 
 def formatDateTime(datetime):
     return datetime.strftime("%A, %d %b %Y • %H:%M:%S UTC")

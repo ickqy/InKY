@@ -4,8 +4,6 @@ import contextlib
 import core.bot as _bot
 import logging
 
-import config
-
 
 @contextlib.contextmanager
 def setup_logging():
@@ -37,8 +35,8 @@ def setup_logging():
 
 
 def init_bot():
-    loop = asyncio.get_event_loop()
-    logger = logging.getLogger()
+    asyncio.get_event_loop()
+    logging.getLogger()
 
     bot = _bot.InKY()
     bot.run()
@@ -49,7 +47,7 @@ def init_bot():
 def main(ctx):
     """Launch the bot."""
     if ctx.invoked_subcommand is None:
-        loop = asyncio.get_event_loop()
+        asyncio.get_event_loop()
         with setup_logging():
             init_bot()
 
