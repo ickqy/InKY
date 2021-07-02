@@ -4,6 +4,7 @@ __pycache__/
 
 # config
 config.py
+twitch_OAuth.json
 
 # log
 discord.log
@@ -11,9 +12,6 @@ discord.log
 # Database
 starboard_config.json
 database.db
-
-# exe files
-ffmpeg.exe
 
 #Status
 cogs/status.py

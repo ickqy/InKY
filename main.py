@@ -25,8 +25,8 @@ def setup_logging():
         console_handler.setFormatter(logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT))
         console_handler.setLevel(logging.WARNING)
         logger.addHandler(console_handler)
-
         yield
+
     finally:
         handlers = logger.handlers[:]
         for handler in handlers:

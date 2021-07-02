@@ -3,6 +3,7 @@ import logging
 import re
 import time
 import config
+import aiohttp
 
 from discord.ext import commands
 from databases import Database
@@ -39,13 +40,6 @@ def _callable_prefix(bot, message):
     if not message.guild:
         base.extend(bot.def_prefix)
     else:
-        # can be changed for per-server prefix
-        #
-        # example:
-        #   base.extend(
-        #       sorted(bot.cache[message.guild.id].get("prefixes", bot.def_prefix))
-        #   )
-
         base.extend(bot.def_prefix)
     return base
 
@@ -73,6 +67,9 @@ class InKY(commands.Bot):
 
         # Database
         self.db = Database(config.sql, factory=Connection)
+
+        # Session for emoji crap
+        self.session = aiohttp.ClientSession(loop=self.loop)
 
     async def on_ready(self):
         # load all listed extensions

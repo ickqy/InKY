@@ -512,6 +512,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         """`Play a sound effect`"""
         player = self.get_player(ctx)
         embed_reaction = ["🔁"]
+        response = ["✅", "❎"]
 
         def check_reaction(reaction, user):
             if user == ctx.author and str(reaction.emoji) in embed_reaction:
@@ -519,8 +520,43 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             else:
                 return False
 
+        def check_response(reaction, user):
+            if user == ctx.author and str(reaction.emoji) in response:
+                return str(reaction.emoji)
+            else:
+                return False
+
         if not player.is_connected:
             await player.connect(ctx)
+
+        if not player.queue.is_empty:
+            warn = await ctx.reply("Playing a sound effect will stop the song and will clear the queue. Would you like to continue?")
+            for emoji in response:
+                await warn.add_reaction(emoji)
+            while True:
+                try:
+                    reaction, user = await self.bot.wait_for(
+                        "reaction_add", check=check_response, timeout=20.0
+                    )
+                except asyncio.TimeoutError:
+                    await warn.edit(content="Times out, stopped command.")
+                    await warn.clear_reactions()
+                    break
+                else:
+                    emoji = check_response(reaction, user)
+                    try:
+                        await warn.remove_reaction(reaction.emoji, user)
+                    except discord.Forbidden:
+                        pass
+                    if emoji == "❎":
+                        await warn.edit(content="Stopped Sound effect")
+                        await warn.clear_reactions()
+                        return
+                    if emoji == "✅":
+                        await warn.delete()
+                        await player.set_pause(True)
+                        player.queue.empty()
+                        break
 
         if player.is_connected:
             if arg is None:

@@ -4,6 +4,11 @@ import textwrap
 import asyncio
 import unicodedata
 import discord.utils
+import json
+import requests
+import config
+
+import cogs.utils.checks as checks
 
 
 from discord.ext import commands
@@ -30,7 +35,7 @@ class General(commands.Cog):
     @commands.command(aliases=["bi", "about", "info"])
     async def botinfo(self, ctx):
         """`Shows the bot's information.`"""
-        bot_ver = "v4.0.1"
+        bot_ver = "v4.1"
         embed = discord.Embed(
             title="About InKY",
             colour=discord.Colour(0x000000),
@@ -233,7 +238,12 @@ class General(commands.Cog):
 
         await ctx.reply(f"Heyo! I have been awake for `{uptime_str}`")
 
-    @commands.command(name="emojiinfo", aliases=["ei"], brief="Get an emoji's information")
+    @commands.group()
+    async def emoji(self, ctx):
+        """`Commands related to server emojis.`"""
+        pass
+
+    @emoji.command(name="information", aliases=["info"], brief="Get an emoji's information")
     async def emojiinfo(
         self, ctx, emoji: Union[discord.Emoji, discord.PartialEmoji, str]
     ):
@@ -269,9 +279,9 @@ class General(commands.Cog):
                 return await ctx.reply("`{}` is not a valid emoji!".format(emoji))
         return await ctx.reply(embed=e)
 
-    @commands.command(aliases=["el"])
+    @emoji.command(name="list")
     async def emojilist(self, ctx):
-        """`List all emojis in the server.`"""
+        """List all emojis in the server."""
         emojis = " ".join([str(emoji) for emoji in ctx.guild.emojis])
         emoji_list = textwrap.wrap(emojis, 1024)
 
@@ -311,6 +321,7 @@ class General(commands.Cog):
                     "reaction_add", check=check_reactions, timeout=60.0
                 )
             except asyncio.TimeoutError:
+                await msg.clear_reactions()
                 break
             else:
                 emoji = check_reactions(reaction, user)
@@ -327,7 +338,352 @@ class General(commands.Cog):
                     embed = create_embed(ctx, page)
                     await msg.edit(embed=embed)
                 if emoji == "⏹️":
-                    # await msg.clear_reactions()
+                    await msg.clear_reactions()
+                    break
+        return
+
+    @emoji.command(name="add", aliases=["+"], usage="(name)")
+    @checks.has_guild_permissions(manage_emojis=True)
+    async def emoji_add(
+        self, ctx, name: Union[str], emote_pic: Union[discord.PartialEmoji]
+    ):
+        """Add an emoji to a server."""
+        # Get emote_pic from an emote
+        if emote_pic and isinstance(emote_pic, discord.PartialEmoji):
+            async with self.bot.session.get(str(emote_pic.url)) as f:
+                emote_pic = await f.read()
+        # Get emote_pic from embeds
+        elif ctx.message.embeds:
+            data = ctx.message.embeds[0]
+            if data.type == "image":
+                async with self.bot.session.get(data.url) as f:
+                    emote_pic = await f.read()
+            else:
+                return await ctx.reply("Emoji only supports `.png`, `.jpg`, and `.gif` filetype")
+        else:
+            emote_pic = None
+
+        # Check if it has attachments
+        if ctx.message.attachments and not emote_pic:
+            for attachment in ctx.message.attachments:
+                emote_pic = await attachment.read()
+
+        # This look ugly but sure why not
+        if not emote_pic:
+            await ctx.send("You need to attach an image of the emoji!")
+            return
+        if not name:
+            await ctx.send("You need to specify a name for the emoji!")
+            return
+        if len(name) < 2:
+            await ctx.send(
+                "The name of the emoji needs to be at least 2 characters long!"
+            )
+            return
+
+        # Try to add new emoji, if fails send error
+        try:
+            added_emote = await ctx.guild.create_custom_emoji(
+                name=name, image=emote_pic
+            )
+        except discord.errors.Forbidden:
+            await ctx.reply("Bot needs **Manage Emojis** permission for this command!")
+            return
+        except discord.InvalidArgument as err:
+            if err == "Unsupported image type given":
+                return await ctx.reply("Emoji only supports `.png`, `.jpg`, and `.gif` filetype")
+
+        # Just embed stuff to give user info that the bot successfully added an emoji
+        embed = discord.Embed(
+            title="New emote has been added!",
+            description=f"{str(added_emote)} `:{added_emote.name}:`",
+            color=discord.Colour(0x000000),
+            timestamp=ctx.message.created_at,
+        )
+        embed.set_footer(
+            text=f"Added by {ctx.message.author.name}#{ctx.message.author.discriminator}"
+        )
+        await ctx.send(embed=embed)
+
+    @commands.group()
+    async def emotes(self, ctx):
+        """`Get a channel's emotes from bttv, ffz, and twitch.`"""
+        pass
+
+    @emotes.command(name="twitch")
+    async def twitch(self, ctx, channel_name):
+        """Get twitch emotes from a channel."""
+
+        # Get Channel ID
+        invalid_user = f"User not found: {channel_name}"
+        id_grabber = requests.get(f'http://decapi.me/twitch/id/{channel_name}')
+        channel_id = id_grabber.text
+        if invalid_user == channel_id:
+            await ctx.reply("You did not provide a valid user, check your spelling and try again.")
+            return
+        else:
+            pass
+
+        API_ENDPOINT = f'https://api.twitch.tv/helix/chat/emotes?broadcaster_id={channel_id}'
+
+        # open OAuth file
+        with open("twitch_OAuth.json", "r") as f:
+            token = json.load(f)
+
+        # example Client_ID put yours here
+        Client_ID = f'{config.client_id}'
+        OAuth = f'{token["OAuth"]}'
+
+        # data to be sent to api
+        head = {'Authorization': OAuth, 'Client-ID': Client_ID}
+
+        # api call here
+        data = requests.get(url=API_ENDPOINT, headers=head)
+        emote = data.json()
+
+        # embed and reaction checks
+        page = 1
+        number = 0
+        total_page = len(emote["data"])
+        embed_reactions = ["◀️", "⏹️", "▶️"]
+
+        def check_reactions(reaction, user):
+            if user == ctx.author and str(reaction.emoji) in embed_reactions:
+                return str(reaction.emoji)
+            else:
+                return False
+
+        def create_embed(ctx, page):
+            e = discord.Embed(
+                title=f"{channel_name}'s twitch emotes",
+                color=discord.Colour(0x000000),
+                timestamp=ctx.message.created_at,
+            )
+            e.set_footer(
+                text=f"{page}/{total_page}"
+            )
+            e.add_field(
+                name="Emote Name",
+                value=emote["data"][number]["name"],
+            )
+            e.set_image(
+                url=emote['data'][number]['images']['url_4x']
+            )
+            return e
+
+        if IndexError:
+            await ctx.reply("This user does not have any twitch emotes.")
+            return
+
+        embed = create_embed(ctx, page)
+        msg = await ctx.reply(embed=embed)
+        for emoji in embed_reactions:
+            await msg.add_reaction(emoji)
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for(
+                    "reaction_add", check=check_reactions, timeout=20.0
+                )
+            except asyncio.TimeoutError:
+                await msg.clear_reactions()
+                break
+            else:
+                emoji = check_reactions(reaction, user)
+                try:
+                    await msg.remove_reaction(reaction.emoji, user)
+                except discord.Forbidden:
+                    pass
+                if emoji == "◀️" and page != 1:
+                    page -= 1
+                    number -= 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "▶️" and page != total_page:
+                    page += 1
+                    number += 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "⏹️":
+                    await msg.clear_reactions()
+                    break
+        return
+
+    @emotes.command(name="ffz")
+    async def ffz(self, ctx, channel_name):
+        """Get frankerfacez emotes from a channel."""
+
+        # Get Channel ID
+        invalid_user = f"User not found: {channel_name}"
+        id_grabber = requests.get(f'http://decapi.me/twitch/id/{channel_name}')
+        channel_id = id_grabber.text
+        if invalid_user == channel_id:
+            await ctx.reply("You did not provide a valid user, check your spelling and try again.")
+            return
+        else:
+            pass
+
+        data = requests.get(f'https://api.betterttv.net/3/cached/frankerfacez/users/twitch/{channel_id}')
+        emote = data.json()
+
+        # embed and reaction checks
+        page = 1
+        number = 0
+        total_page = len(emote)
+        embed_reactions = ["◀️", "⏹️", "▶️"]
+
+        def check_reactions(reaction, user):
+            if user == ctx.author and str(reaction.emoji) in embed_reactions:
+                return str(reaction.emoji)
+            else:
+                return False
+
+        def create_embed(ctx, page):
+            e = discord.Embed(
+                title=f"{channel_name}'s frankerfacez emotes",
+                color=discord.Colour(0x000000),
+                timestamp=ctx.message.created_at,
+            )
+            e.set_footer(
+                text=f"{page}/{total_page}"
+            )
+            e.add_field(
+                name="Emote Name",
+                value=emote[number]["code"],
+            )
+            e.set_image(
+                url=emote[number]["images"]["4x"]
+            )
+            return e
+
+        if IndexError:
+            await ctx.reply("This user does not have any frankerfacez emotes.")
+            return
+
+        embed = create_embed(ctx, page)
+        msg = await ctx.reply(embed=embed)
+        for emoji in embed_reactions:
+            await msg.add_reaction(emoji)
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for(
+                    "reaction_add", check=check_reactions, timeout=20.0
+                )
+            except asyncio.TimeoutError:
+                await msg.clear_reactions()
+                break
+            else:
+                emoji = check_reactions(reaction, user)
+                try:
+                    await msg.remove_reaction(reaction.emoji, user)
+                except discord.Forbidden:
+                    pass
+                if emoji == "◀️" and page != 1:
+                    page -= 1
+                    number -= 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "▶️" and page != total_page:
+                    page += 1
+                    number += 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "⏹️":
+                    await msg.clear_reactions()
+                    break
+        return
+
+    @emotes.command(name="bttv")
+    async def bttv(self, ctx, channel_name):
+        """Get betterttv emotes from a channel."""
+
+        # Get Channel ID
+        invalid_user = f"User not found: {channel_name}"
+        id_grabber = requests.get(f'http://decapi.me/twitch/id/{channel_name}')
+        channel_id = id_grabber.text
+        if invalid_user == channel_id:
+            await ctx.reply("You did not provide a valid user, check your spelling and try again.")
+            return
+        else:
+            pass
+
+        # Get Emote List
+        data = requests.get(f'https://api.betterttv.net/3/cached/users/twitch/{channel_id}')
+        emote = data.json()
+
+        # embed, emoji grabber, and reaction checks
+        page = 1
+        number = 0
+        try:
+            type = emote["sharedEmotes"][number]["imageType"]
+        except IndexError:
+            await ctx.reply("This user does not have any betterttv emotes.")
+            return
+        gif = 'gif'
+        total_page = len(emote)
+        embed_reactions = ["◀️", "⏹️", "▶️"]
+
+        def check_reactions(reaction, user):
+            if user == ctx.author and str(reaction.emoji) in embed_reactions:
+                return str(reaction.emoji)
+            else:
+                return False
+
+        def create_embed(ctx, page):
+            e = discord.Embed(
+                title=f"{channel_name}'s betterttv emotes",
+                color=discord.Colour(0x000000),
+                timestamp=ctx.message.created_at,
+            )
+            e.set_footer(
+                text=f"{page}/{total_page}"
+            )
+            e.add_field(
+                name="Emote Name",
+                value=emote["sharedEmotes"][number]["code"],
+            )
+            if type == gif:
+                e.set_image(
+                    url=f'https://cdn.betterttv.net/emote/{emote["sharedEmotes"][number]["id"]}/3x.gif'
+                )
+                return e
+
+            else:
+                e.set_image(
+                    url=f'https://cdn.betterttv.net/emote/{emote["sharedEmotes"][number]["id"]}/3x'
+                )
+
+            return e
+
+        embed = create_embed(ctx, page)
+        msg = await ctx.reply(embed=embed)
+        for emoji in embed_reactions:
+            await msg.add_reaction(emoji)
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for(
+                    "reaction_add", check=check_reactions, timeout=20.0
+                )
+            except asyncio.TimeoutError:
+                await msg.clear_reactions()
+                break
+            else:
+                emoji = check_reactions(reaction, user)
+                try:
+                    await msg.remove_reaction(reaction.emoji, user)
+                except discord.Forbidden:
+                    pass
+                if emoji == "◀️" and page != 1:
+                    page -= 1
+                    number -= 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "▶️" and page != total_page:
+                    page += 1
+                    number += 1
+                    embed = create_embed(ctx, page)
+                    await msg.edit(embed=embed)
+                if emoji == "⏹️":
+                    await msg.clear_reactions()
                     break
         return
 
@@ -343,14 +699,18 @@ class General(commands.Cog):
         await ctx.reply(
             "**InKY Change Log**\n"
             "\n"
-            "**InKY v4.0.1**"
+            "**InKY v4.1**"
             "\n"
-            "This is a minor update, just cleaned up a bunch of things and fixed some stuff up\n"
+            "This update brings new commands to InKY, and also some changes to a few commands, here is the list of changes.\n"
+            "\n"
+            "**New Commands:**"
+            "\n"
+            "> Emotes Commands - you can now get a channels twitch, bttv, and ffz emotes.\n"
+            "> Emoji add - add an emoji to your server.\n"
             "\n"
             "**Modified Commands:**"
             "\n"
-            "> Snipe Command - Modified the timer a bit\n"
-            "> Hug Command - Removed reply from the second embed\n"
+            "> Emoji Commands - placed them in a seperate category.\n"
             "\n"
             "**Other:**"
             "\n"
@@ -388,10 +748,6 @@ class General(commands.Cog):
             "> Help - Completely new look\n"
             "> Poll - Modified it so you can ping any role you want instead of only everyone\n"
             "> Sound Effect - Added reply feature\n"
-            "\n"
-            "**Other:**\n"
-            "> Changed a bunch of emojis\n"
-            "> Grammar corrections\n"
             "\n"
             "If there is an issue with the bot, please contact @icky#2264, or do `-report <issue>` to report an issue. icky will get into the issue as soon as he can.\n"
         )
