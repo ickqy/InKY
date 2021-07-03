@@ -471,11 +471,11 @@ class General(commands.Cog):
             )
             return e
 
-        if IndexError:
+        try:
+            embed = create_embed(ctx, page)
+        except IndexError:
             await ctx.reply("This user does not have any twitch emotes.")
             return
-
-        embed = create_embed(ctx, page)
         msg = await ctx.reply(embed=embed)
         for emoji in embed_reactions:
             await msg.add_reaction(emoji)
@@ -555,11 +555,11 @@ class General(commands.Cog):
             )
             return e
 
-        if IndexError:
+        try:
+            embed = create_embed(ctx, page)
+        except IndexError:
             await ctx.reply("This user does not have any frankerfacez emotes.")
             return
-
-        embed = create_embed(ctx, page)
         msg = await ctx.reply(embed=embed)
         for emoji in embed_reactions:
             await msg.add_reaction(emoji)
