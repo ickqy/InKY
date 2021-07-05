@@ -319,8 +319,11 @@ class General(commands.Cog):
                     "reaction_add", check=check_reactions, timeout=60.0
                 )
             except asyncio.TimeoutError:
-                await msg.clear_reactions()
-                break
+                try:
+                    await msg.clear_reactions()
+                    break
+                except Forbidden:
+                    break
             else:
                 emoji = check_reactions(reaction, user)
                 try:
@@ -336,8 +339,11 @@ class General(commands.Cog):
                     embed = create_embed(ctx, page)
                     await msg.edit(embed=embed)
                 if emoji == "⏹️":
-                    await msg.clear_reactions()
-                    break
+                    try:
+                        await msg.clear_reactions()
+                        break
+                    except Forbidden:
+                        break
         return
 
     @commands.group()
@@ -420,8 +426,11 @@ class General(commands.Cog):
                     "reaction_add", check=check_reactions, timeout=20.0
                 )
             except asyncio.TimeoutError:
-                await msg.clear_reactions()
-                break
+                try:
+                    await msg.clear_reactions()
+                    break
+                except Forbidden:
+                    break
             else:
                 emoji = check_reactions(reaction, user)
                 try:
@@ -439,8 +448,11 @@ class General(commands.Cog):
                     embed = create_embed(ctx, page)
                     await msg.edit(embed=embed)
                 if emoji == "⏹️":
-                    await msg.clear_reactions()
-                    break
+                    try:
+                        await msg.clear_reactions()
+                        break
+                    except Forbidden:
+                        break
         return
 
     @emotes.command(name="ffz")
@@ -504,8 +516,11 @@ class General(commands.Cog):
                     "reaction_add", check=check_reactions, timeout=20.0
                 )
             except asyncio.TimeoutError:
-                await msg.clear_reactions()
-                break
+                try:
+                    await msg.clear_reactions()
+                    break
+                except Forbidden:
+                    break
             else:
                 emoji = check_reactions(reaction, user)
                 try:
@@ -523,8 +538,11 @@ class General(commands.Cog):
                     embed = create_embed(ctx, page)
                     await msg.edit(embed=embed)
                 if emoji == "⏹️":
-                    await msg.clear_reactions()
-                    break
+                    try:
+                        await msg.clear_reactions()
+                        break
+                    except Forbidden:
+                        break
         return
 
     @emotes.command(name="bttv")
@@ -590,8 +608,11 @@ class General(commands.Cog):
                     "reaction_add", check=check_reactions, timeout=20.0
                 )
             except asyncio.TimeoutError:
-                await msg.clear_reactions()
-                break
+                try:
+                    await msg.clear_reactions()
+                    break
+                except Forbidden:
+                    break
             else:
                 emoji = check_reactions(reaction, user)
                 try:
@@ -609,8 +630,11 @@ class General(commands.Cog):
                     embed = create_embed(ctx, page)
                     await msg.edit(embed=embed)
                 if emoji == "⏹️":
-                    await msg.clear_reactions()
-                    break
+                    try:
+                        await msg.clear_reactions()
+                        break
+                    except Forbidden:
+                        break
         return
 
     @commands.command(aliases=["r"])
