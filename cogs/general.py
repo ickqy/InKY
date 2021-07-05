@@ -322,7 +322,7 @@ class General(commands.Cog):
                 try:
                     await msg.clear_reactions()
                     break
-                except Forbidden:
+                except discord.Forbidden:
                     break
             else:
                 emoji = check_reactions(reaction, user)
@@ -342,7 +342,7 @@ class General(commands.Cog):
                     try:
                         await msg.clear_reactions()
                         break
-                    except Forbidden:
+                    except discord.Forbidden:
                         break
         return
 
@@ -429,7 +429,7 @@ class General(commands.Cog):
                 try:
                     await msg.clear_reactions()
                     break
-                except Forbidden:
+                except discord.Forbidden:
                     break
             else:
                 emoji = check_reactions(reaction, user)
@@ -451,7 +451,7 @@ class General(commands.Cog):
                     try:
                         await msg.clear_reactions()
                         break
-                    except Forbidden:
+                    except discord.Forbidden:
                         break
         return
 
@@ -519,7 +519,7 @@ class General(commands.Cog):
                 try:
                     await msg.clear_reactions()
                     break
-                except Forbidden:
+                except discord.Forbidden:
                     break
             else:
                 emoji = check_reactions(reaction, user)
@@ -541,7 +541,7 @@ class General(commands.Cog):
                     try:
                         await msg.clear_reactions()
                         break
-                    except Forbidden:
+                    except discord.Forbidden:
                         break
         return
 
@@ -611,7 +611,7 @@ class General(commands.Cog):
                 try:
                     await msg.clear_reactions()
                     break
-                except Forbidden:
+                except discord.Forbidden:
                     break
             else:
                 emoji = check_reactions(reaction, user)
@@ -633,7 +633,7 @@ class General(commands.Cog):
                     try:
                         await msg.clear_reactions()
                         break
-                    except Forbidden:
+                    except discord.Forbidden:
                         break
         return
 
