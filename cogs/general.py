@@ -8,8 +8,6 @@ import json
 import requests
 import config
 
-import cogs.utils.checks as checks
-
 
 from discord.ext import commands
 
@@ -342,69 +340,6 @@ class General(commands.Cog):
                     break
         return
 
-    @emoji.command(name="add", aliases=["+"], usage="(name)")
-    @checks.has_guild_permissions(manage_emojis=True)
-    async def emoji_add(
-        self, ctx, name: Union[str], emote_pic: Union[discord.PartialEmoji]
-    ):
-        """Add an emoji to a server."""
-        # Get emote_pic from an emote
-        if emote_pic and isinstance(emote_pic, discord.PartialEmoji):
-            async with self.bot.session.get(str(emote_pic.url)) as f:
-                emote_pic = await f.read()
-        # Get emote_pic from embeds
-        elif ctx.message.embeds:
-            data = ctx.message.embeds[0]
-            if data.type == "image":
-                async with self.bot.session.get(data.url) as f:
-                    emote_pic = await f.read()
-            else:
-                return await ctx.reply("Emoji only supports `.png`, `.jpg`, and `.gif` filetype")
-        else:
-            emote_pic = None
-
-        # Check if it has attachments
-        if ctx.message.attachments and not emote_pic:
-            for attachment in ctx.message.attachments:
-                emote_pic = await attachment.read()
-
-        # This look ugly but sure why not
-        if not emote_pic:
-            await ctx.send("You need to attach an image of the emoji!")
-            return
-        if not name:
-            await ctx.send("You need to specify a name for the emoji!")
-            return
-        if len(name) < 2:
-            await ctx.send(
-                "The name of the emoji needs to be at least 2 characters long!"
-            )
-            return
-
-        # Try to add new emoji, if fails send error
-        try:
-            added_emote = await ctx.guild.create_custom_emoji(
-                name=name, image=emote_pic
-            )
-        except discord.errors.Forbidden:
-            await ctx.reply("Bot needs **Manage Emojis** permission for this command!")
-            return
-        except discord.InvalidArgument as err:
-            if err == "Unsupported image type given":
-                return await ctx.reply("Emoji only supports `.png`, `.jpg`, and `.gif` filetype")
-
-        # Just embed stuff to give user info that the bot successfully added an emoji
-        embed = discord.Embed(
-            title="New emote has been added!",
-            description=f"{str(added_emote)} `:{added_emote.name}:`",
-            color=discord.Colour(0x000000),
-            timestamp=ctx.message.created_at,
-        )
-        embed.set_footer(
-            text=f"Added by {ctx.message.author.name}#{ctx.message.author.discriminator}"
-        )
-        await ctx.send(embed=embed)
-
     @commands.group()
     async def emotes(self, ctx):
         """`Get a channel's emotes from bttv, ffz, and twitch.`"""
@@ -609,16 +544,11 @@ class General(commands.Cog):
         # Get Emote List
         data = requests.get(f'https://api.betterttv.net/3/cached/users/twitch/{channel_id}')
         emote = data.json()
+        emote = emote["sharedEmotes"]
 
         # embed, emoji grabber, and reaction checks
         page = 1
         number = 0
-        try:
-            type = emote["sharedEmotes"][number]["imageType"]
-        except IndexError:
-            await ctx.reply("This user does not have any betterttv emotes.")
-            return
-        gif = 'gif'
         total_page = len(emote)
         embed_reactions = ["◀️", "⏹️", "▶️"]
 
@@ -639,22 +569,18 @@ class General(commands.Cog):
             )
             e.add_field(
                 name="Emote Name",
-                value=emote["sharedEmotes"][number]["code"],
+                value=emote[number]["code"],
             )
-            if type == gif:
-                e.set_image(
-                    url=f'https://cdn.betterttv.net/emote/{emote["sharedEmotes"][number]["id"]}/3x.gif'
-                )
-                return e
-
-            else:
-                e.set_image(
-                    url=f'https://cdn.betterttv.net/emote/{emote["sharedEmotes"][number]["id"]}/3x'
-                )
-
+            e.set_image(
+                url=f'https://cdn.betterttv.net/emote/{emote[number]["id"]}/3x.gif'
+            )
             return e
 
-        embed = create_embed(ctx, page)
+        try:
+            embed = create_embed(ctx, page)
+        except IndexError:
+            await ctx.reply("This user does not have any betterttv emotes.")
+            return
         msg = await ctx.reply(embed=embed)
         for emoji in embed_reactions:
             await msg.add_reaction(emoji)
